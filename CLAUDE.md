@@ -38,6 +38,7 @@ It is a port of `WochenmailController` from the Laravel app `wrkdpl` (https://gi
   - Grid per day with rows Tag and Nacht and columns RKL1, RKL2, RKL3, RKS1, RKS2, RKP1, RKF1, RKI1.
   - Name suffixes such as `-N` / `-T` are normalized.
   - RKL1 Saturday day shifts count as filled.
+  - The NAW position `NA` (emergency doctor) is not staffed via the mail and never counts as open (`FOREIGN_POSITIONS`).
 - **Signature (duty leaders):**
   - Reference time is Von at 18:00. Take the support-event day covering the reference.
   - For each role (Hauptdienst, Beidienst, then others), pick the person whose own shift covers the reference: the shortest shift wins, otherwise the next one to start. Nobody is listed twice.

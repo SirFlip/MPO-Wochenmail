@@ -47,6 +47,8 @@
     // quick hack in case a normunit is on the wrong position
     const BLOCKED_NAMES = ['RTW KFZ', 'RTW-NAW F', 'NFR 1', 'SAN 1', 'N-KTW KFZ', 'KTW KFZ', 'KTW F', 'SAN 2', 'FSD SR FahrerIn', 'PKW KFZ', 'PKW F'];
     const NFR_COLUMNS = ['RKL1', 'RKL2', 'RKL3', 'RKS1', 'RKS2', 'RKP1', 'RKF1', 'RKI1'];
+    // Positionen, die nicht über die Wochenmail besetzt werden (Notärzt*in am NAW)
+    const FOREIGN_POSITIONS = ['NA'];
 
     // ---------------------------------------------------------------- Zeit
 
@@ -166,8 +168,9 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify([dayId]),
         });
+        // Ohne Wünsche würden besetzte Positionen als offen erscheinen.
         if (!response.ok) {
-            return [];
+            throw new Error(`Dienstwünsche: HTTP ${response.status}`);
         }
         const list = await response.json().catch(() => []);
         return (list || []).filter((p) => ALLOWED_PREFERRED_ASSIGNMENT_STATES.includes(p.preferredAssignmentState?.id));
@@ -277,6 +280,7 @@
                     link: vehicle.link,
                     open: vehicle.positions
                         .filter((p) => p.baseNormUnit.type !== 'm' && p.shiftAssignment == null)
+                        .filter((p) => !FOREIGN_POSITIONS.includes(p.baseNormUnit.name))
                         .map((p) => p.baseNormUnit.name),
                     pos: {},
                     remark: '',
@@ -437,7 +441,7 @@
         if (shift.open.length === 3) return link('Ganzes Team');
         if (shift.open.length === 0) return '✔️';
         const labels = { 'RTW-NAW F': 'Lenker', 'NFR 1': 'NFR1', 'SAN 1': 'NFR2 / SAN1' };
-        const open = shift.open.map((p, j) => link(`<span style="${RED}">${labels[p] ?? ''}${shift.open.length === 2 && j === 0 ? ' &amp;' : ''}</span>`)).join(' ');
+        const open = shift.open.map((p, j) => link(`<span style="${RED}">${labels[p] ?? esc(p)}${shift.open.length === 2 && j === 0 ? ' &amp;' : ''}</span>`)).join(' ');
         const names = [1, 2, 3].filter((i) => shift.pos[i]).map((i) => esc(fullName(shift.pos[i])));
         return `${open}<br><small>mit ${names.join(', ')}</small>`;
     }
