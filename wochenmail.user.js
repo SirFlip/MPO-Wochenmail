@@ -243,7 +243,7 @@
     }
 
     const NAME_MAPPING = {};
-    for (const base of ['RKL1', 'RKL2', 'RKL3', 'RKS1', 'RKS2', 'RKP1', 'RKF1', 'RKI1']) {
+    for (const base of NFR_COLUMNS) {
         const dashed = base.slice(0, 3) + '-' + base.slice(3);
         for (const suffix of ['N', 'T']) {
             NAME_MAPPING[`${base}-${suffix}`] = base;
@@ -611,6 +611,7 @@ ${spacer(65)}
                 const html = renderMail(type, start, formatRoster(type, roster), leaders);
                 frame.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Wochenmail</title></head><body style="margin:0;background:#ffffff;">${html}</body></html>`;
                 frame.onload = () => {
+                    if (current !== run) return;
                     const doc = frame.contentDocument;
                     stripe(doc);
                     doc.querySelectorAll('table.duties > tbody > tr > td:first-child').forEach((cell) => {
@@ -620,9 +621,14 @@ ${spacer(65)}
                             stripe(doc);
                         });
                     });
+                    // Jede offene Position ist in der Tabelle verlinkt (KTW je Zeile, NFR je Zelle).
+                    if (!doc.querySelector('table.duties > tbody a')) {
+                        setStatus('Fertig. Keine offenen Positionen im Zeitraum gefunden.', true);
+                        return;
+                    }
                     copyButton.disabled = false;
+                    setStatus(`Fertig.${leaders.length ? '' : ' Keine Dienstführung gefunden, bitte Unterschrift prüfen.'}`, !leaders.length);
                 };
-                setStatus(`Fertig.${leaders.length ? '' : ' Keine Dienstführung gefunden, bitte Unterschrift prüfen.'}`, !leaders.length);
             } catch (error) {
                 if (current === run) setStatus(error.message || String(error), true);
             } finally {
