@@ -196,7 +196,7 @@
         const config = TYPES[type];
         const from = viennaDate(startYmd).toISOString();
         const to = viennaDate(endYmd).toISOString();
-        const events = await getJson(`/rpt/api/event/mpo/assigned?&validFrom=${from}&validTo=${to}`) || [];
+        const events = await getJson(`/rpt/api/event/mpo/assigned?validFrom=${from}&validTo=${to}`) || [];
 
         const days = [];
         for (const event of events) {
