@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MPO Wochenmail
 // @namespace    https://portal.wrk.at/wrkdpl
-// @version      1.0.0
+// @version      1.1.0
 // @description  Wochenmail mit den offenen KTW- und NFR-Positionen direkt im MPO erstellen und nach Outlook kopieren.
 // @match        https://portal.wrk.at/mpo/*
 // @grant        none
@@ -25,6 +25,7 @@
             tel: '01/79580-1776',
             tellink: '+431795801776',
             permission: 'SAN2',
+            supportDivision: 'RD-KTW-SUPPORT',
             width: 700,
         },
         nfr: {
@@ -34,16 +35,9 @@
             tel: '01/79580-1775',
             tellink: '+431795801775',
             permission: 'SAN1',
+            supportDivision: 'RD-NFR-SUPPORT',
             width: 900,
         },
-    };
-
-    // Support-Events mit der Dienstführung, je Jahr neu im Portal angelegt.
-    const SUPPORT_EVENTS = {
-        2023: { nfr: '7aa43c6e-65a5-9795-4c83-40d161c95a4a', ktw: 'd049f7d9-3397-d0c7-01ef-e20b02e4b050' },
-        2024: { nfr: '8ac6bdcc-6012-4465-bf46-daeb3dd753a7', ktw: '4abcf8d9-c417-4974-a08f-10eeb0eb10ca' },
-        2025: { nfr: 'fe63ab19-8d11-487a-870b-f7f37e129f71', ktw: '23d4529b-9c7a-422e-9880-aeca62ab7bc2' },
-        2026: { nfr: '557e2488-6468-4438-ab77-0528f45ef090', ktw: 'c0b0d54b-f397-44e2-a863-bd98fe2f27a6' },
     };
 
     const UNWANTED_EVENTS = ['Spezialdienste', 'Bereitschaft', 'Stationskoordination'];
@@ -346,12 +340,24 @@
         return team;
     }
 
+    /**
+     * Support-Event mit der Dienstführung zum Zeitpunkt reference, gefunden über
+     * die Dienstplanklasse. visibleInMpo=true wie die MPO-Eventliste, sonst
+     * filtert das Portal nach den RPT-Rechten.
+     */
+    async function findSupportEvent(type, reference) {
+        const from = reference.toISOString();
+        const to = new Date(reference.getTime() + 60000).toISOString();
+        const events = await getJson(`/rpt/api/event?visibleInMpo=true&personnelCapacityOnly=true&validFrom=${from}&validTo=${to}`) || [];
+        return events.find((event) => event.division?.name === TYPES[type].supportDivision);
+    }
+
     async function loadDutyLeaders(type, startYmd) {
         const reference = viennaDate(startYmd, 18, 0);
-        const year = startYmd.slice(0, 4);
-        const eventId = SUPPORT_EVENTS[year]?.[type] ?? SUPPORT_EVENTS[new Date().getFullYear()]?.[type];
-        if (!eventId) return [];
-        const response = await api(`/rpt/api/event/${eventId}`);
+        const support = await findSupportEvent(type, reference);
+        if (!support) return [];
+        // Die Liste enthält nur einen Subtag, daher das ganze Event laden.
+        const response = await api(`/rpt/api/event/${support.id}`);
         if (!response.ok) return [];
         const event = await response.json();
         const day = (event?.days || []).find((d) => new Date(d.startTime) <= reference && new Date(d.endTime) > reference);

@@ -22,7 +22,8 @@ It is a port of `WochenmailController` from the Laravel app `wrkdpl` (https://gi
 - `GET /rpt/api/event/mpo/assigned?validFrom=…&validTo=…` returns the events in the range (ISO UTC).
 - `GET /rpt/api/normunitofevent/day/{dayId}` returns vehicles (`parentId == null`) and their positions per event day.
 - `POST /rpt/api/preferredassignment/ed/ids` with body `[dayId]` returns wishes. States 0–2 count as filled.
-- `GET /rpt/api/event/{supportEventId}` returns the support event used for the signature (duty leaders).
+- `GET /rpt/api/event?visibleInMpo=true&personnelCapacityOnly=true&validFrom=…&validTo=…` is the MPO event list ("Dienste → Events"). It finds the support event. Without `visibleInMpo=true` the portal filters by RPT rights and NFR support is missing. Each event carries only one sub-day (the next one), not the covering one.
+- `GET /rpt/api/event/{supportEventId}` returns the support event with all its days, used for the signature (duty leaders).
 
 ## Domain rules (keep when changing)
 
@@ -41,7 +42,7 @@ It is a port of `WochenmailController` from the Laravel app `wrkdpl` (https://gi
   - Reference time is Von at 18:00. Take the support-event day covering the reference.
   - For each role (Hauptdienst, Beidienst, then others), pick the person whose own shift covers the reference: the shortest shift wins, otherwise the next one to start. Nobody is listed twice.
   - The KTW support plans whole weeks (Wed 18:00 to Wed 18:00) with partial shifts.
-- **Support event IDs** are hard-coded per year in `SUPPORT_EVENTS`. They have to be added each new year, otherwise the signature shows a placeholder.
+- **Support events** are found by their Dienstplanklasse (`division.name`): `RD-KTW-SUPPORT` / `RD-NFR-SUPPORT` (`supportDivision` in `TYPES`), as the event covering the reference time. If none is found, the signature shows a placeholder.
 - **Intro texts** are fixed. NFR uses the ISO week of Von.
 
 ## Testing
