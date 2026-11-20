@@ -8,6 +8,9 @@
 // @run-at       document-idle
 // ==/UserScript==
 
+// Portierung des Wochenmail-Generators aus wrkdpl von Daniel Steiner:
+// https://github.com/danielsteiner/wrkdpl
+//
 // Läuft in der angemeldeten MPO-Seite: Alle Abfragen gehen mit der Browser-Sitzung
 // an dieselben Portal-Schnittstellen wie die Laravel-App (WochenmailController).
 

@@ -72,6 +72,10 @@ Für beide Bereiche gilt:
 
 Fehlt der Menüeintrag, prüfen ob Tampermonkey aktiv ist, das Script im Dashboard eingeschaltet ist und (Chrome/Edge) Userscripts erlaubt sind. Danach die MPO-Seite neu laden.
 
+## Herkunft
+
+Die Logik stammt aus [wrkdpl](https://github.com/danielsteiner/wrkdpl) von Daniel Steiner ([@danielsteiner](https://github.com/danielsteiner)), einer Laravel-App mit Werkzeugen für den WRK-Dienstbetrieb. Dieses Script ist eine Portierung des dortigen Wochenmail-Generators (`WochenmailController`) als Userscript, beschränkt auf KTW und NFR.
+
 ## Entwicklung
 
 Es gibt keinen Build und keine automatischen Tests. Fachliche Regeln, verwendete Portal-Schnittstellen und Hinweise zum Testen stehen in [`CLAUDE.md`](CLAUDE.md).
