@@ -20,14 +20,13 @@ Die Erweiterung Tampermonkey für deinen Browser installieren:
 2. Den Schalter **Nutzerskripts zulassen** („Allow User Scripts“) einschalten.
    Bei älteren Browser-Versionen gibt es diesen Schalter nicht. Dann stattdessen oben rechts auf `chrome://extensions` den **Entwicklermodus** einschalten.
 
-### 2. Script hinzufügen
+### 2. Script installieren
 
-1. Tampermonkey-Symbol → *Neues Script erstellen*.
-2. Den vorhandenen Beispielinhalt komplett löschen.
-3. Den gesamten Inhalt von [`wochenmail.user.js`](wochenmail.user.js) einfügen.
-4. Mit `Strg+S` speichern.
+**[➜ MPO Wochenmail installieren](https://raw.githubusercontent.com/SirFlip/mpo-wochenmail/main/wochenmail.user.js)**
 
-Im Tampermonkey-Dashboard sollte jetzt „MPO Wochenmail“ aktiviert in der Liste stehen.
+Tampermonkey öffnet eine Installationsseite. Dort auf **Installieren** klicken. Im Tampermonkey-Dashboard steht danach „MPO Wochenmail“ aktiviert in der Liste.
+
+Öffnet sich stattdessen nur der Quelltext, ist Tampermonkey nicht aktiv oder (Chrome/Edge) sind Userscripts nicht erlaubt, siehe Schritt 1.
 
 ### 3. Prüfen
 
@@ -35,7 +34,9 @@ MPO öffnen bzw. neu laden. Im Menü unter **Dienste** steht nach „Kalenderabo
 
 ## Aktualisieren
 
-Das Script aktualisiert sich nicht automatisch. Bei einer neuen Version im Tampermonkey-Dashboard das Script „MPO Wochenmail“ öffnen, den Inhalt durch die neue Fassung von `wochenmail.user.js` ersetzen und speichern. Die installierte Version steht im Dashboard und im Script-Kopf (`@version`).
+Tampermonkey sucht selbst nach neuen Versionen (standardmäßig täglich) und installiert sie. Sofort aktualisieren: Tampermonkey-Symbol → *Dashboard* → bei „MPO Wochenmail“ auf die Versionsnummer bzw. *Nach Updates suchen* klicken, oder einfach den Installationslink oben noch einmal öffnen.
+
+**Script früher von Hand eingefügt?** Dann kennt Tampermonkey die Update-Adresse noch nicht. Einmal den Installationslink oben öffnen und das bestehende Script damit ersetzen lassen, danach kommen Updates automatisch.
 
 ## Bedienung
 

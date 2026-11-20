@@ -1,11 +1,14 @@
 // ==UserScript==
 // @name         MPO Wochenmail
 // @namespace    https://portal.wrk.at/wrkdpl
-// @version      1.2.1
+// @version      1.2.2
 // @description  Wochenmail mit den offenen KTW- und NFR-Positionen direkt im MPO erstellen und nach Outlook kopieren.
 // @match        https://portal.wrk.at/mpo
 // @match        https://portal.wrk.at/mpo/*
 // @license      MIT
+// @homepageURL  https://github.com/SirFlip/mpo-wochenmail
+// @updateURL    https://raw.githubusercontent.com/SirFlip/mpo-wochenmail/main/wochenmail.user.js
+// @downloadURL  https://raw.githubusercontent.com/SirFlip/mpo-wochenmail/main/wochenmail.user.js
 // @grant        none
 // @run-at       document-idle
 // ==/UserScript==
