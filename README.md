@@ -24,6 +24,12 @@ Die Erweiterung Tampermonkey für deinen Browser installieren:
 
 **[➜ MPO Wochenmail installieren](https://raw.githubusercontent.com/SirFlip/mpo-wochenmail/main/wochenmail.user.js)**
 
+Oder den Link kopieren (Symbol rechts im Feld) und in die Adresszeile einfügen:
+
+```
+https://raw.githubusercontent.com/SirFlip/mpo-wochenmail/main/wochenmail.user.js
+```
+
 Tampermonkey öffnet eine Installationsseite. Dort auf **Installieren** klicken. Im Tampermonkey-Dashboard steht danach „MPO Wochenmail“ aktiviert in der Liste.
 
 Öffnet sich stattdessen nur der Quelltext, ist Tampermonkey nicht aktiv oder (Chrome/Edge) sind Userscripts nicht erlaubt, siehe Schritt 1.
