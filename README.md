@@ -76,6 +76,10 @@ Fehlt der Menüeintrag, prüfen ob Tampermonkey aktiv ist, das Script im Dashboa
 
 Die Logik stammt aus [wrkdpl](https://github.com/danielsteiner/wrkdpl) von Daniel Steiner ([@danielsteiner](https://github.com/danielsteiner)), einer Laravel-App mit Werkzeugen für den WRK-Dienstbetrieb. Dieses Script ist eine Portierung des dortigen Wochenmail-Generators (`WochenmailController`) als Userscript, beschränkt auf KTW und NFR.
 
+## Lizenz
+
+MIT, wie wrkdpl. Siehe [`LICENSE`](LICENSE).
+
 ## Entwicklung
 
 Es gibt keinen Build und keine automatischen Tests. Fachliche Regeln, verwendete Portal-Schnittstellen und Hinweise zum Testen stehen in [`CLAUDE.md`](CLAUDE.md).

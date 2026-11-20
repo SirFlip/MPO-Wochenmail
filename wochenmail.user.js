@@ -5,6 +5,7 @@
 // @description  Wochenmail mit den offenen KTW- und NFR-Positionen direkt im MPO erstellen und nach Outlook kopieren.
 // @match        https://portal.wrk.at/mpo
 // @match        https://portal.wrk.at/mpo/*
+// @license      MIT
 // @grant        none
 // @run-at       document-idle
 // ==/UserScript==
