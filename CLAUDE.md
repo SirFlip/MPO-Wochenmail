@@ -28,10 +28,11 @@ It is a port of `WochenmailController` from the Laravel app `wrkdpl` (https://gi
 ## Domain rules (keep when changing)
 
 - **Event filter:** division `RD`; names containing Spezialdienste, Bereitschaft or Stationskoordination are skipped; at least one day must have `stateInMpo` 0–3.
-- **Weekday day shifts** (start 05:00–16:59) are dropped, except on Vienna public holidays and in the Vienna summer holidays.
+- **Weekday day shifts** (start 05:00–16:59) are dropped, except on Vienna public holidays, in the Vienna summer holidays and (KTW only) for RKK vehicles.
 - **KTW:**
-  - Only optional vehicles or ones named `RKK…` are listed.
-  - Non-RKK vehicles starting 05:00–12:00 are dropped.
+  - Only optional vehicles are listed (RKK vehicles too only when optional).
+  - Non-RKK vehicles starting 05:00–12:00 are dropped, on weekends and holidays as well.
+  - RKK vehicles are exempt from the weekday day-shift rule above.
   - Only rows with 1–2 open positions appear.
   - Columns Lenker*in / SAN1 / SAN2 = positions 1 / 2 / 3.
 - **NFR:**

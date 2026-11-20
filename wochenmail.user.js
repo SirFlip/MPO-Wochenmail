@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MPO Wochenmail
 // @namespace    https://portal.wrk.at/wrkdpl
-// @version      1.1.0
+// @version      1.2.0
 // @description  Wochenmail mit den offenen KTW- und NFR-Positionen direkt im MPO erstellen und nach Outlook kopieren.
 // @match        https://portal.wrk.at/mpo/*
 // @grant        none
@@ -261,8 +261,10 @@
                 const dayShift = isDayShift(v);
                 const holiday = isHoliday(v);
                 const helpWanted = isSummerHoliday(v);
+                // KTW: RKK-Fahrzeuge bleiben auch werktags tagsüber drin.
+                const rkk = type === 'ktw' && vehicle.name.includes('RKK');
 
-                if (v.dow !== 6 && v.dow !== 0 && !helpWanted && dayShift && !holiday) continue;
+                if (v.dow !== 6 && v.dow !== 0 && !helpWanted && dayShift && !holiday && !rkk) continue;
                 if (BLOCKED_NAMES.includes(vehicle.name)) continue;
 
                 const separator = vehicle.name.indexOf(' - ');
@@ -405,7 +407,7 @@
             const [, m, d] = ymd.split('-');
             for (const shift of shifts) {
                 const rkk = shift.name.includes('RKK');
-                if (!rkk && !shift.optional) continue;
+                if (!shift.optional) continue;
                 const v = vienna(shift.start);
                 const minutes = v.H * 60 + v.M;
                 if (!rkk && minutes >= 5 * 60 && minutes <= 12 * 60) continue;
@@ -468,7 +470,7 @@
             : 'Offene Positionen am <span style="color:#B70E0C;">KTW &amp; N-KTW</span>';
         const columns = type === 'nfr'
             ? [{ label: 'Datum', colspan: 3 }, ...['RKL-1', 'RKL-2', 'RKL-3', 'RKS-1', 'RKS-2', 'RKP-1', 'RKF-1', 'RKI-1'].map((label) => ({ label }))]
-            : ['Datum', 'Dienstzeit', 'Fahrzeug', 'Bezirkstelle', 'Lenker*in', 'SAN1', 'SAN2', 'Anmerkung', 'MPO Link'].map((label) => ({ label }));
+            : ['Datum', 'Dienstzeit', 'Fahrzeug', 'Bezirksstelle', 'Lenker*in', 'SAN1', 'SAN2', 'Anmerkung', 'MPO Link'].map((label) => ({ label }));
         const signature = leaders.length
             ? leaders.slice(0, 2).map((e) => esc(`${e.firstName} ${e.lastName}`)).join(' &amp; ')
             : 'Dienstführende*r 1 &amp; Dienstführende*r 2';

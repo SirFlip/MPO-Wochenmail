@@ -50,13 +50,13 @@ Das Script aktualisiert sich nicht automatisch. Bei einer neuen Version im Tampe
 
 ## Was in der Mail steht
 
-**KTW & N-KTW:** eine Zeile pro Fahrzeug mit 1–2 offenen Positionen. Berücksichtigt werden RKK-Fahrzeuge und optionale Fahrzeuge.
+**KTW & N-KTW:** eine Zeile pro Fahrzeug mit 1–2 offenen Positionen. Berücksichtigt werden nur optionale Fahrzeuge. Fahrzeuge ohne RKK mit Dienstbeginn zwischen 05:00 und 12:00 fehlen. RKK-Fahrzeuge erscheinen auch unter der Woche tagsüber.
 
 **Notfallrettung:** eine Tabelle pro Tag mit den Zeilen Tag und Nacht und den Spalten RKL-1 bis RKI-1. Offene Positionen sind rot und verlinkt, besetzte Dienste haben ein Häkchen.
 
 Für beide Bereiche gilt:
 
-- Tagdienste unter der Woche fehlen, außer an Wiener Feiertagen und in den Wiener Sommerferien.
+- Tagdienste unter der Woche fehlen, außer an Wiener Feiertagen und in den Wiener Sommerferien (bei KTW außerdem außer bei RKK-Fahrzeugen).
 - Ein Dienstwunsch zählt bereits als besetzt.
 - Die Notärzt*innen-Position (NA) am NAW wird nie als offen gezeigt.
 - Unterschrieben wird mit den beiden Dienstführenden aus dem KTW- bzw. NFR-Support-Dienstplan, die am Von-Tag um 18:00 im Dienst sind.
