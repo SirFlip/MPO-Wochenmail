@@ -1,6 +1,6 @@
 # MPO Wochenmail
 
-Tampermonkey-Userscript für das MPO-Portal des WRK (`https://portal.wrk.at/mpo/`). Es erstellt die Wochenmail mit den offenen Positionen für **KTW & N-KTW** oder die **Notfallrettung (NFR)** direkt im Browser. Die fertige Mail wird in die Zwischenablage kopiert und von Hand in Outlook eingefügt. Das Script verschickt selbst nichts.
+Tampermonkey-Userscript für das MPO-Portal des WRK (`https://portal.wrk.at/mpo/`). Es erstellt die Wochenmail mit den offenen Positionen für **KTW & N-KTW**, die **Notfallrettung (NFR)** oder **Ambulanzen (AMB)** direkt im Browser. Die fertige Mail wird in die Zwischenablage kopiert und von Hand in Outlook eingefügt. Das Script verschickt selbst nichts.
 
 Das Script nutzt deine angemeldete MPO-Sitzung. Es braucht keine eigenen Zugangsdaten und sieht nur, was du im MPO auch siehst.
 
@@ -64,7 +64,7 @@ Tampermonkey sucht selbst nach neuen Versionen (standardmäßig täglich) und in
 
 1. Im MPO **Dienste → Wochenmail** öffnen.
 2. Auswählen:
-   - **Bereich:** KTW & N-KTW oder Notfallrettung.
+   - **Bereich:** KTW & N-KTW, Notfallrettung oder Ambulanzen.
    - **Von:** erster Tag der Mail, standardmäßig morgen.
    - **Bis:** erster Tag, der *nicht* mehr dabei ist, standardmäßig Von + 8 Tage. Wird Von geändert, wandert Bis mit und behält den Abstand.
 3. **Erstellen** klicken. Das Laden dauert je nach Zeitraum einige Sekunden, der Fortschritt steht neben dem Button.
@@ -77,12 +77,15 @@ Tampermonkey sucht selbst nach neuen Versionen (standardmäßig täglich) und in
 
 **Notfallrettung:** eine Tabelle pro Tag mit den Zeilen Tag und Nacht und den Spalten RKL-1 bis RKI-1. Offene Positionen sind rot und verlinkt, besetzte Dienste haben ein Häkchen.
 
-Für beide Bereiche gilt:
+Für KTW und NFR gilt:
 
 - Tagdienste unter der Woche fehlen, außer an Wiener Feiertagen und in den Wiener Sommerferien (bei KTW außerdem außer bei RKK-Fahrzeugen).
-- Ein Dienstwunsch zählt bereits als besetzt.
 - Die Notärzt*innen-Position (NA) am NAW wird nie als offen gezeigt.
 - Unterschrieben wird mit den beiden Dienstführenden aus dem KTW- bzw. NFR-Support-Dienstplan, die am Von-Tag um 18:00 im Dienst sind.
+
+**Ambulanzen:** ein Block pro Ambulanz mit Name, Ambulanznummer, Beschreibung und Bild, darunter alle offenen Positionen der Tage im Zeitraum (je Tag Pflicht vor Optional) mit MPO-Link. Die Spalte Unterabschnitt erscheint nur bei Ambulanzen mit Unterabschnitten. Unterschrieben wird mit deinem Namen „im Namen der Ambulanzdienstführung“. Ob Outlook die Bilder beim Einfügen übernimmt, bitte prüfen, sonst von Hand einfügen.
+
+In allen Bereichen zählt ein Dienstwunsch bereits als besetzt.
 
 ## Häufige Meldungen
 
@@ -91,13 +94,14 @@ Für beide Bereiche gilt:
 | Die Portal-Sitzung ist abgelaufen … | MPO-Seite neu laden, anmelden und noch einmal erstellen. |
 | Keine offenen Positionen im Zeitraum gefunden. | Im Zeitraum ist alles besetzt, oder Von/Bis stimmen nicht. Kopieren ist dann gesperrt. |
 | Keine Dienstführung gefunden, bitte Unterschrift prüfen. | Im Support-Dienstplan ist am Von-Tag um 18:00 niemand eingeteilt, oder das Support-Event für das Jahr fehlt noch. In der Mail steht ein Platzhalter, der von Hand ersetzt werden muss. |
+| Kein Name gefunden, bitte Unterschrift prüfen. | (Ambulanzen) Das MPO hat deinen Namen nicht geliefert. In der Mail steht ein Platzhalter. |
 | Dienstwünsche: HTTP … | Das Portal hat die Dienstwünsche nicht geliefert. Später noch einmal versuchen, sonst wären besetzte Positionen als offen markiert. |
 
 Fehlt der Menüeintrag, prüfen ob Tampermonkey aktiv ist, das Script im Dashboard eingeschaltet ist und (Chrome/Edge) Userscripts erlaubt sind. Danach die MPO-Seite neu laden.
 
 ## Herkunft
 
-Die Logik stammt aus [wrkdpl](https://github.com/danielsteiner/wrkdpl) von Daniel Steiner ([@danielsteiner](https://github.com/danielsteiner)), einer Laravel-App mit Werkzeugen für den WRK-Dienstbetrieb. Dieses Script ist eine Portierung des dortigen Wochenmail-Generators (`WochenmailController`) als Userscript, beschränkt auf KTW und NFR.
+Die Logik stammt aus [wrkdpl](https://github.com/danielsteiner/wrkdpl) von Daniel Steiner ([@danielsteiner](https://github.com/danielsteiner)), einer Laravel-App mit Werkzeugen für den WRK-Dienstbetrieb. Dieses Script ist eine Portierung des dortigen Wochenmail-Generators (`WochenmailController`) als Userscript für KTW, NFR und Ambulanzen (ohne die NFR-Sommer-CSV).
 
 ## Lizenz
 

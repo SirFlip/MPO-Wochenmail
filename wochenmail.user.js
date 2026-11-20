@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         MPO Wochenmail
 // @namespace    https://portal.wrk.at/wrkdpl
-// @version      1.2.2
-// @description  Wochenmail mit den offenen KTW- und NFR-Positionen direkt im MPO erstellen und nach Outlook kopieren.
+// @version      1.3.0
+// @description  Wochenmail mit den offenen KTW-, NFR- und Ambulanz-Positionen direkt im MPO erstellen und nach Outlook kopieren.
 // @match        https://portal.wrk.at/mpo
 // @match        https://portal.wrk.at/mpo/*
 // @license      MIT
@@ -45,6 +45,14 @@
             permission: 'SAN1',
             supportDivision: 'RD-NFR-SUPPORT',
             width: 900,
+        },
+        amb: {
+            label: 'AMB',
+            email: 'amb-df@w.roteskreuz.at',
+            tel: '01/79580-1774',
+            tellink: '+431795801774',
+            permission: 'SAN2',
+            width: 760,
         },
     };
 
@@ -379,6 +387,97 @@
         return selectDutyLeaders(await getJson(`/rpt/api/normunitofevent/day/${day.id}`) || [], reference);
     }
 
+    /**
+     * Ambulanzen mit ihren offenen Positionen, wie getRosters('amb') in der App.
+     * Abweichend davon nur Tage im Zeitraum, und Wünsche zählen wie bei KTW/NFR
+     * als besetzt.
+     */
+    async function loadAmbulances(startYmd, endYmd, onProgress) {
+        const from = viennaDate(startYmd), to = viennaDate(endYmd);
+        const events = await getJson(`/rpt/api/event/mpo/assigned?validFrom=${from.toISOString()}&validTo=${to.toISOString()}`) || [];
+
+        const days = [];
+        for (const event of events) {
+            if (event.division?.name !== 'AMB') continue;
+            if (event.name.includes('Spezialdienste')) continue;
+            if (event.visibleInMpo === false) continue;
+            if (!VALID_EVENT_STATES.includes(event.eventState?.id)) continue;
+            for (const day of event.days || []) {
+                const start = new Date(day.startTime);
+                if (start < from || start >= to) continue;
+                if (!ALLOWED_STATE_IN_MPO.includes(day.stateInMpo?.id)) continue;
+                days.push({ event, day });
+            }
+        }
+
+        const loaded = await pool(days.map(({ day }) => async () => {
+            const [normUnits, preferred] = await Promise.all([
+                getJson(`/rpt/api/normunitofevent/day/${day.id}`),
+                preferredAssignments(day.id),
+            ]);
+            return { normUnits: normUnits || [], preferred };
+        }), PARALLEL, onProgress);
+
+        const ambulances = new Map();
+        days.forEach(({ event, day }, index) => {
+            const { normUnits, preferred } = loaded[index];
+            const wished = new Set(preferred.map((p) => p.normUnitOfEventId));
+            const open = normUnits
+                .filter((u) => u.baseNormUnit?.type === 'p' && u.shiftAssignment == null && u.subcontractor == null && !wished.has(u.id))
+                .map((u) => ({
+                    start: new Date(u.startTime ?? day.startTime),
+                    end: new Date(u.endTime ?? day.endTime),
+                    subday: (day.name || '').trim(),
+                    name: u.name,
+                    location: u.startLocation?.name ?? '',
+                    optional: !!u.optional,
+                    link: `https://portal.wrk.at/mpo/rpt/mpoevent/${event.id}?day=${day.id}&shiftlink=${u.id}&row=${u.id}`,
+                }));
+            if (!open.length) return;
+            if (!ambulances.has(event.id)) {
+                ambulances.set(event.id, {
+                    id: event.id,
+                    name: event.name.trim(),
+                    number: event.ambulanceNumber ?? '',
+                    description: event.description ?? '',
+                    pictureAvailable: event.pictureAvailable,
+                    positions: [],
+                });
+            }
+            ambulances.get(event.id).positions.push(...open);
+        });
+
+        const list = [...ambulances.values()];
+        // Je Tag Pflicht vor Optional, wie in der App.
+        for (const amb of list) {
+            amb.positions.sort((a, b) => vienna(a.start).ymd.localeCompare(vienna(b.start).ymd) || a.optional - b.optional || a.start - b.start);
+        }
+        list.sort((a, b) => a.positions[0].start - b.positions[0].start);
+        await Promise.all(list.filter((amb) => amb.pictureAvailable).map(async (amb) => {
+            amb.picture = await loadPicture(amb.id).catch((error) => {
+                if (error instanceof SessionExpired) throw error;
+                return null;
+            });
+        }));
+        return list;
+    }
+
+    /** Event-Bild als Data-URI (das Portal liefert es als nacktes Base64). */
+    async function loadPicture(eventId) {
+        const response = await api(`/rpt/api/event/picture/${eventId}`);
+        if (!response.ok) return null;
+        const data = (await response.text()).trim().replace(/^"|"$/g, '');
+        if (!/^[A-Za-z0-9+/=\s]+$/.test(data)) return null;
+        const mime = data.startsWith('/9j') ? 'image/jpeg' : data.startsWith('R0lG') ? 'image/gif' : 'image/png';
+        return `data:${mime};base64,${data.replace(/\s/g, '')}`;
+    }
+
+    /** Name der angemeldeten Person für die AMB-Unterschrift. */
+    async function loadUserName() {
+        const user = await getJson('/mpo/api/servicegateway/user');
+        return (user?.userName || '').trim();
+    }
+
     // ---------------------------------------------------------------- Vorlage
 
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -395,6 +494,9 @@
     const STRIPE = '#eeeeee';
 
     function intro(type, startYmd) {
+        if (type === 'amb') {
+            return 'In gewohnter Weise möchten wir dich über die offenen Positionen auf Ambulanzen der nächsten Tage informieren.';
+        }
         const invitation = 'Es würde uns freuen, wenn du den einen oder anderen Dienst besetzen kannst. Wenn du bereits ein ganzes Team für einen Dienst hast, kannst du uns dieses genauso bekannt geben wie einen einzelnen Dienstwunsch!';
         return type === 'nfr'
             ? `Gleich zum Wochenanfang möchten wir dich wie gewohnt über die offenen Positionen der Notfallrettung in der KW ${isoWeek(startYmd)} informieren.\n${invitation}`
@@ -471,19 +573,69 @@
         return rows;
     }
 
+
+    function truncate(text, length) {
+        return text.length > length ? text.slice(0, length) + '...' : text;
+    }
+
+    /** Je Ambulanz ein Block mit Kopf, Beschreibung, Bild und offenen Positionen. */
+    function ambBlocks(ambulances) {
+        const white = `${FONT}padding:5px;background-color:#B70E0C;color:#ffffff;font-size:16px;font-weight:bold;line-height:19px;`;
+        return ambulances.map((amb) => {
+            const description = esc(truncate(amb.description, 500)).replace(/\r?\n/g, '<br>');
+            const picture = amb.picture
+                ? `<td width="150" valign="top" style="width:150px;padding:5px;"><img src="${amb.picture}" width="150" alt="" style="display:block;width:150px;height:auto;border:0;"></td>`
+                : '';
+            // Unterabschnitt nur, wenn die Ambulanz welche hat.
+            const subdays = amb.positions.some((p) => p.subday);
+            const columns = ['Datum', 'Dienstzeit', ...(subdays ? ['Unterabschnitt'] : []), 'Funktion', 'Startort', 'P / O', 'MPO Link'].map((label) => ({ label }));
+            const rows = amb.positions.map((p) => {
+                const v = vienna(p.start);
+                return '<tr>'
+                    + `<td style="${TD_FIRST}white-space:nowrap;">${WEEKDAYS_DE_SHORT[v.dow]} ${pad(v.d)}.${pad(v.m)}</td>`
+                    + `<td style="${TD}white-space:nowrap;">${hm(p.start)} - ${hm(p.end)}</td>`
+                    + (subdays ? `<td style="${TD}">${esc(p.subday || '-')}</td>` : '')
+                    + `<td style="${TD}">${esc(p.name)}</td>`
+                    + `<td style="${TD}">${esc(p.location)}</td>`
+                    + `<td style="${TD}">${p.optional ? 'Optional' : 'Pflicht'}</td>`
+                    + `<td style="${TD}white-space:nowrap;"><a href="${esc(p.link)}" target="_blank" style="${LINK}">MPO Link</a></td>`
+                    + '</tr>';
+            }).join('');
+            return `<table class="amb" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;margin:0 0 20px;border:1px solid #eeeeee;">
+<tr><td style="${white}text-align:left;">${esc(amb.name)}</td><td style="${white}text-align:right;white-space:nowrap;">${esc(amb.number)}</td></tr>
+<tr><td colspan="2" style="padding:0;"><table width="100%" border="0" cellspacing="0" cellpadding="0" style="width:100%;"><tr><td valign="top" style="${TEXT}padding:5px;">${description}</td>${picture}</tr></table></td></tr>
+<tr><td colspan="2" style="padding:0;"><table class="duties" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;">
+<thead>${headerRow(columns)}</thead>
+<tbody>${rows}</tbody>
+</table></td></tr>
+</table>`;
+        }).join('\n');
+    }
+
     function renderMail(type, startYmd, days, leaders) {
         const config = TYPES[type];
-        const title = type === 'nfr'
-            ? 'Offene Positionen in der <span style="color:#B70E0C;">Notfallrettung</span>'
-            : 'Offene Positionen am <span style="color:#B70E0C;">KTW &amp; N-KTW</span>';
+        const title = {
+            nfr: 'Offene Positionen in der <span style="color:#B70E0C;">Notfallrettung</span>',
+            ktw: 'Offene Positionen am <span style="color:#B70E0C;">KTW &amp; N-KTW</span>',
+            amb: 'Offene Positionen auf <span style="color:#B70E0C;">Ambulanzen</span>',
+        }[type];
         const columns = type === 'nfr'
             ? [{ label: 'Datum', colspan: 3 }, ...['RKL-1', 'RKL-2', 'RKL-3', 'RKS-1', 'RKS-2', 'RKP-1', 'RKF-1', 'RKI-1'].map((label) => ({ label }))]
             : ['Datum', 'Dienstzeit', 'Fahrzeug', 'Bezirksstelle', 'Lenker*in', 'SAN1', 'SAN2', 'Anmerkung', 'MPO Link'].map((label) => ({ label }));
-        const signature = leaders.length
-            ? leaders.slice(0, 2).map((e) => esc(`${e.firstName} ${e.lastName}`)).join(' &amp; ')
-            : 'Dienstführende*r 1 &amp; Dienstführende*r 2';
+        // AMB: leaders ist der Name der angemeldeten Person.
+        const signature = type === 'amb'
+            ? `${esc(leaders || 'Vorname Nachname')}<br>im Namen der Ambulanzdienstführung`
+            : leaders.length
+                ? leaders.slice(0, 2).map((e) => esc(`${e.firstName} ${e.lastName}`)).join(' &amp; ')
+                : 'Dienstführende*r 1 &amp; Dienstführende*r 2';
         const spacer = (height) => `<tr><td valign="top" height="${height}" style="height:${height}px;">&nbsp;</td></tr>`;
         const grey = 'color:#cccccc;';
+        const body = type === 'amb'
+            ? `<div style="margin:30px 0;">${ambBlocks(days)}</div>`
+            : `<table class="duties" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:30px 0;width:100%;">
+<thead>${headerRow(columns)}</thead>
+<tbody>${type === 'nfr' ? nfrRows(days) : ktwRows(days)}</tbody>
+</table>`;
 
         return `<table width="${config.width}" align="center" border="0" cellspacing="0" cellpadding="0" style="${FONT}background:#ffffff;border:0;width:${config.width}px;color:#737373;">
 <tbody>
@@ -494,10 +646,7 @@ ${spacer(15)}
 ${spacer(15)}
 <tr><td><p style="${TEXT}">${esc(intro(type, startYmd))}</p></td></tr>
 <tr><td>
-<table class="duties" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:30px 0;width:100%;">
-<thead>${headerRow(columns)}</thead>
-<tbody>${type === 'nfr' ? nfrRows(days) : ktwRows(days)}</tbody>
-</table>
+${body}
 </td></tr>
 <tr><td><p style="${TEXT}">Für Änderungen, Splittings, Dienstzeitenanpassungen, uvm. zu bestehenden Diensten kannst du uns natürlich jederzeit via Email unter <a href="mailto:${config.email}" style="color:#B70E0C;">${config.email}</a> oder per Telefon unter <a href="tel:${config.tellink}" style="color:#B70E0C;">${config.tel}</a> kontaktieren.<br>Wir wünschen eine schöne Woche!</p></td></tr>
 ${spacer(15)}
@@ -508,10 +657,12 @@ ${spacer(65)}
 </table>`;
     }
 
-    /** Zebrastreifen der Dienst-Tabelle, nach jedem Löschen neu. */
+    /** Zebrastreifen der Dienst-Tabellen, nach jedem Löschen neu. */
     function stripe(doc) {
-        doc.querySelectorAll('table.duties > tbody > tr').forEach((row, i) => {
-            row.style.backgroundColor = i % 2 === 1 ? STRIPE : '';
+        doc.querySelectorAll('table.duties > tbody').forEach((tbody) => {
+            [...tbody.rows].forEach((row, i) => {
+                row.style.backgroundColor = i % 2 === 1 ? STRIPE : '';
+            });
         });
     }
 
@@ -556,7 +707,7 @@ ${spacer(65)}
 <div class="wm-dialog" role="dialog" aria-label="Wochenmail">
   <div class="wm-head"><h3>Wochenmail</h3><button type="button" class="wm-close" title="Schließen">×</button></div>
   <form class="wm-form">
-    <label>Bereich<select name="type"><option value="ktw">KTW &amp; N-KTW</option><option value="nfr">Notfallrettung</option></select></label>
+    <label>Bereich<select name="type"><option value="ktw">KTW &amp; N-KTW</option><option value="nfr">Notfallrettung</option><option value="amb">Ambulanzen</option></select></label>
     <label>Von<input type="date" name="start" required value="${tomorrow}"></label>
     <label>Bis<input type="date" name="end" required value="${addDays(tomorrow, 8)}"></label>
     <button type="submit" class="wm-btn">Erstellen</button>
@@ -608,17 +759,18 @@ ${spacer(65)}
             copyButton.disabled = true;
             setStatus('Lade Dienste …');
             try {
-                const [roster, leaders] = await Promise.all([
-                    loadRoster(type, start, end, (done, total) => {
-                        if (current === run) setStatus(`Lade Dienste … ${done}/${total}`);
-                    }),
-                    loadDutyLeaders(type, start).catch((error) => {
-                        if (error instanceof SessionExpired) throw error;
-                        return [];
-                    }),
-                ]);
+                const progress = (done, total) => {
+                    if (current === run) setStatus(`Lade Dienste … ${done}/${total}`);
+                };
+                const fallback = (empty) => (error) => {
+                    if (error instanceof SessionExpired) throw error;
+                    return empty;
+                };
+                const [data, leaders] = type === 'amb'
+                    ? await Promise.all([loadAmbulances(start, end, progress), loadUserName().catch(fallback(''))])
+                    : await Promise.all([loadRoster(type, start, end, progress), loadDutyLeaders(type, start).catch(fallback([]))]);
                 if (current !== run) return;
-                const html = renderMail(type, start, formatRoster(type, roster), leaders);
+                const html = renderMail(type, start, type === 'amb' ? data : formatRoster(type, data), leaders);
                 frame.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Wochenmail</title></head><body style="margin:0;background:#ffffff;">${html}</body></html>`;
                 frame.onload = () => {
                     if (current !== run) return;
@@ -627,17 +779,21 @@ ${spacer(65)}
                     doc.querySelectorAll('table.duties > tbody > tr > td:first-child').forEach((cell) => {
                         cell.addEventListener('dblclick', () => {
                             doc.getSelection()?.removeAllRanges();
+                            const tbody = cell.parentElement.parentElement;
                             cell.parentElement.remove();
+                            // AMB: Ambulanz ohne Zeilen fällt ganz weg.
+                            if (!tbody.rows.length) tbody.closest('table.amb')?.remove();
                             stripe(doc);
                         });
                     });
-                    // Jede offene Position ist in der Tabelle verlinkt (KTW je Zeile, NFR je Zelle).
+                    // Jede offene Position ist in der Tabelle verlinkt (KTW/AMB je Zeile, NFR je Zelle).
                     if (!doc.querySelector('table.duties > tbody a')) {
                         setStatus('Fertig. Keine offenen Positionen im Zeitraum gefunden.', true);
                         return;
                     }
                     copyButton.disabled = false;
-                    setStatus(`Fertig.${leaders.length ? '' : ' Keine Dienstführung gefunden, bitte Unterschrift prüfen.'}`, !leaders.length);
+                    const missing = type === 'amb' ? 'Kein Name gefunden' : 'Keine Dienstführung gefunden';
+                    setStatus(`Fertig.${leaders.length ? '' : ` ${missing}, bitte Unterschrift prüfen.`}`, !leaders.length);
                 };
             } catch (error) {
                 if (current === run) setStatus(error.message || String(error), true);
