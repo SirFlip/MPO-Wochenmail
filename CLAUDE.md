@@ -47,6 +47,11 @@ It is a port of `WochenmailController` from the Laravel app `wrkdpl` (https://gi
 - **Support events** are found by their Dienstplanklasse (`division.name`): `RD-KTW-SUPPORT` / `RD-NFR-SUPPORT` (`supportDivision` in `TYPES`), as the event covering the reference time. If none is found, the signature shows a placeholder.
 - **Intro texts** are fixed. NFR uses the ISO week of Von.
 
+## Releases
+
+- Tampermonkey updates the installed script from `main` on GitHub (`@updateURL` / `@downloadURL`) and only when `@version` is higher than the installed one. So bump `@version` with every change to `wochenmail.user.js` that should reach users. Use patch for fixes and minor for new features or changed rules.
+- Changes to README or CLAUDE.md alone need no version bump.
+
 ## Testing
 
 There is no build and there are no tests. To test, load the script into Chrome where the MPO is logged in (e.g. via Claude in Chrome): open "Dienste → Wochenmail", generate KTW and NFR, and check the rows against the MPO.
