@@ -38,6 +38,22 @@ Tampermonkey öffnet eine Installationsseite. Dort auf **Installieren** klicken.
 
 MPO öffnen bzw. neu laden. Im Menü unter **Dienste** steht nach „Kalenderabo“ der neue Eintrag **Wochenmail**.
 
+### Auf dem Handy (Android und iOS)
+
+Auf dem Handy laufen Userscripts nur in bestimmten Browsern. Gedacht ist das Script für den PC. Mobil ist es nicht getestet, vor allem das Einfügen der kopierten Mail in Outlook am Handy kann die Formatierung verlieren.
+
+**Android:** Firefox verwenden, Chrome kann keine Erweiterungen.
+
+1. [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) installieren.
+2. In Firefox [Tampermonkey für Android](https://addons.mozilla.org/android/addon/tampermonkey/) hinzufügen.
+3. In Firefox den Installationslink oben öffnen und auf **Installieren** tippen.
+
+**iOS (iPhone, iPad):** Safari mit einer Userscript-Erweiterung verwenden, zum Beispiel die kostenlose App [Userscripts](https://apps.apple.com/app/id1463298887) oder das kostenpflichtige [Tampermonkey für Safari](https://apps.apple.com/app/tampermonkey/id6738342400).
+
+1. Die App aus dem App Store installieren und einmal öffnen (bei Userscripts dort den Speicherordner für die Scripts festlegen).
+2. *Einstellungen → Apps → Safari → Erweiterungen*: die Erweiterung einschalten und für `portal.wrk.at` erlauben.
+3. In Safari den Installationslink oben öffnen, in der Adressleiste auf das Erweiterungssymbol tippen und das Script installieren.
+
 ## Aktualisieren
 
 Tampermonkey sucht selbst nach neuen Versionen (standardmäßig täglich) und installiert sie. Sofort aktualisieren: Tampermonkey-Symbol → *Dashboard* → bei „MPO Wochenmail“ auf die Versionsnummer bzw. *Nach Updates suchen* klicken, oder einfach den Installationslink oben noch einmal öffnen.
