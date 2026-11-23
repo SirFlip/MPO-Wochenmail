@@ -29,6 +29,8 @@ It is a port of `WochenmailController` from the Laravel app `wrkdpl` (https://gi
 
 ## Domain rules (keep when changing)
 
+The full requirements (user stories with acceptance criteria, German) are in `docs/anforderungen.md`. They are the basis for a native implementation in the MPO. Update them in the same commit when a rule changes.
+
 - **Event filter (KTW/NFR):** division `RD`; names containing Spezialdienste, Bereitschaft or Stationskoordination are skipped; at least one day must have `stateInMpo` 0–3.
 - **Weekday day shifts** (start 05:00–16:59) are dropped, except on Vienna public holidays, in the Vienna summer holidays and (KTW only) for RKK vehicles.
 - **KTW:**
