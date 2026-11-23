@@ -1,11 +1,9 @@
 # Anforderungen: Wochenmail im MPO
 
-| | |
-|---|---|
-| **Gegenstand** | Funktion „Wochenmail“ im MPO (`https://portal.wrk.at/mpo`) |
-| **Bereiche** | KTW & N-KTW, Notfallrettung (NFR), Ambulanzen (AMB) |
-| **Zielgruppe** | Entwicklung des MPO, Product Owner, Fachabteilungen (Freigabe) |
-| **Referenz** | Funktionierende Umsetzung als Userscript: `wochenmail.user.js` (Version 1.3.0) |
+- **Gegenstand:** Funktion „Wochenmail“ im MPO (`https://portal.wrk.at/mpo`)
+- **Bereiche:** KTW & N-KTW, Notfallrettung (NFR), Ambulanzen (AMB)
+- **Zielgruppe:** Entwicklung des MPO, Product Owner, Fachabteilungen (Freigabe)
+- **Referenz:** Funktionierende Umsetzung als Userscript: `wochenmail.user.js` (Version 1.3.0)
 
 ## Inhalt
 
