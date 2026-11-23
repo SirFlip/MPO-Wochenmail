@@ -24,7 +24,7 @@
 
 ### 1.1 Ziel
 
-Die Dienstführungen von KTW, NFR und Ambulanzdienst informieren die Mitarbeiter*innen regelmäßig per Mail über offene Positionen in den kommenden Tagen („Wochenmail“). Die Mail wird heute von Hand bzw. über ein Userscript aus den Daten des MPO zusammengestellt.
+Die Dienstführungen von KTW, NFR und Ambulanzdienst informieren die Mitarbeiter\*innen regelmäßig per Mail über offene Positionen in den kommenden Tagen („Wochenmail“). Die Mail wird heute von Hand bzw. über ein Userscript aus den Daten des MPO zusammengestellt.
 
 Das MPO soll diese Mail selbst erzeugen: Bereich und Zeitraum wählen, Vorschau prüfen und bei Bedarf kürzen, dann formatiert in Outlook übernehmen.
 
@@ -41,7 +41,7 @@ Anforderungen sind als User Stories (`US-…`) mit Akzeptanzkriterien (`AK…`) 
 | Rolle | Beschreibung |
 |---|---|
 | **Dienstführung** | Erstellt die Wochenmail für ihren Bereich (KTW-Support, NFR-Support, Ambulanzdienstführung). |
-| **Empfänger*in** | Mitarbeiter*in, die die Mail bekommt und sich auf offene Positionen meldet. |
+| **Empfänger\*in** | Mitarbeiter\*in, die die Mail bekommt und sich auf offene Positionen meldet. |
 
 ### 1.4 Begriffe
 
@@ -50,7 +50,7 @@ Anforderungen sind als User Stories (`US-…`) mit Akzeptanzkriterien (`AK…`) 
 | **Event** | Dienstplan-Eintrag im MPO, z. B. ein Rettungsdienst-Dienstplan oder eine Ambulanz. Hat eine Dienstplanklasse (Division), einen Event-Status und einen oder mehrere Event-Tage. |
 | **Event-Tag** | Ein Tag (bzw. Unterabschnitt) eines Events mit Beginn, Ende und MPO-Status. |
 | **Fahrzeug** | Normeinheit der obersten Ebene eines Event-Tags (z. B. KTW, RTW, NAW). |
-| **Position** | Normeinheit unterhalb eines Fahrzeugs bzw. eines Ambulanz-Tags, die mit einer Person besetzt wird (z. B. Lenker*in, SAN1). |
+| **Position** | Normeinheit unterhalb eines Fahrzeugs bzw. eines Ambulanz-Tags, die mit einer Person besetzt wird (z. B. Lenker\*in, SAN1). |
 | **Zuteilung** | Eine Person ist der Position fix zugeteilt. |
 | **Dienstwunsch** | Eine Person hat sich für die Position eingetragen. |
 | **Optional / Pflicht** | Kennzeichen eines Fahrzeugs bzw. einer Position, ob es zusätzlich (optional) oder fix (Pflicht) besetzt werden soll. |
@@ -127,13 +127,13 @@ Anforderungen sind als User Stories (`US-…`) mit Akzeptanzkriterien (`AK…`) 
 
 ### US-A6: Einheitlicher Mail-Rahmen
 
-> Als **Empfänger*in** möchte ich, dass alle Wochenmails gleich aufgebaut sind und im Rotkreuz-Design erscheinen, damit ich mich schnell zurechtfinde.
+> Als **Empfänger\*in** möchte ich, dass alle Wochenmails gleich aufgebaut sind und im Rotkreuz-Design erscheinen, damit ich mich schnell zurechtfinde.
 
 **Akzeptanzkriterien**
 
 - **AK1:** Die Mail besteht von oben nach unten aus:
   1. Titel, zentriert, 26 px: „Offene Positionen am **KTW & N-KTW**“ / „Offene Positionen in der **Notfallrettung**“ / „Offene Positionen auf **Ambulanzen**“ (hervorgehobener Teil in Rot `#B70E0C`)
-  2. Anrede „Liebe Kolleg*innen,“
+  2. Anrede „Liebe Kolleg\*innen,“
   3. Einleitungstext des Bereichs (Anhang B)
   4. Inhalt des Bereichs (Abschnitte 4 bis 6)
   5. Kontakttext mit Mail-Adresse und Telefonnummer des Bereichs als klickbare Links (`mailto:` bzw. `tel:`), danach „Wir wünschen eine schöne Woche!“ (Anhang B)
@@ -194,7 +194,7 @@ Sonst gilt sie als **offen**. Ein Dienstwunsch wird in der Mail wie eine Zuteilu
 - **AK2:** Berücksichtigt werden nur Fahrzeuge des Bereichs: KTW-Mail die Fahrzeugtypen `KTW` und `NKTW`, NFR-Mail die Fahrzeugtypen `RTW` und `NAW`.
 - **AK3:** Normeinheiten mit folgenden Namen werden auf Fahrzeugebene ignoriert, weil es sich um falsch eingehängte Positionen handelt: `RTW KFZ`, `RTW-NAW F`, `NFR 1`, `SAN 1`, `N-KTW KFZ`, `KTW KFZ`, `KTW F`, `SAN 2`, `FSD SR FahrerIn`, `PKW KFZ`, `PKW F`.
 - **AK4:** Jeder Dienst wird dem Wiener Kalendertag seines Dienstbeginns zugeordnet. Die Mail ist chronologisch nach Tagen sortiert.
-- **AK5:** Die Notärzt*innen-Position `NA` am NAW gilt nie als offen. Begründung: Sie wird nicht über die Wochenmail besetzt.
+- **AK5:** Die Notärzt\*innen-Position `NA` am NAW gilt nie als offen. Begründung: Sie wird nicht über die Wochenmail besetzt.
 
 ### R-K1: Tagdienste an Werktagen entfallen
 
@@ -217,12 +217,12 @@ Begründung: Werktags tagsüber ist der Dienst hauptberuflich abgedeckt. An Feie
 - **AK3:** Verwendet wird der Event-Tag des Support-Events, der den Bezugszeitpunkt abdeckt (Beginn ≤ Bezug < Ende).
 - **AK4:** Die Dienstführenden werden nach R-K2 ermittelt.
 - **AK5:** Unterschrift sind die ersten beiden ermittelten Personen als „Vorname Nachname & Vorname Nachname“.
-- **AK6:** Gibt es kein Support-Event, keinen passenden Event-Tag oder niemanden, steht in der Unterschrift der Platzhalter „Dienstführende*r 1 & Dienstführende*r 2“ und es erscheint der Hinweis aus US-A3 AK6.
+- **AK6:** Gibt es kein Support-Event, keinen passenden Event-Tag oder niemanden, steht in der Unterschrift der Platzhalter „Dienstführende\*r 1 & Dienstführende\*r 2“ und es erscheint der Hinweis aus US-A3 AK6.
 - **AK7:** Ein Fehler beim Ermitteln der Unterschrift verhindert die Mail nicht (außer bei abgelaufener Sitzung).
 
 ### R-K2: Auswahl der Dienstführenden
 
-1. Kandidat*innen sind alle Personen-Positionen des Support-Tags mit Zuteilung. Als Dienstzeit gilt die eigene Schichtzeit der Zuteilung, sonst die Zeit der Position.
+1. Kandidat\*innen sind alle Personen-Positionen des Support-Tags mit Zuteilung. Als Dienstzeit gilt die eigene Schichtzeit der Zuteilung, sonst die Zeit der Position.
 2. Die Rollen (Namen der Positionen) werden in dieser Reihenfolge abgearbeitet: **Hauptdienst**, **Beidienst**, danach alle weiteren in der Reihenfolge ihres Auftretens.
 3. Je Rolle wird eine Person gewählt:
    - Unter denen, deren Dienstzeit den Bezugszeitpunkt abdeckt, gewinnt die **kürzeste** Schicht.
@@ -237,7 +237,7 @@ Begründung: Der KTW-Support plant ganze Wochen (Mittwoch 18:00 bis Mittwoch 18:
 
 ### US-KTW1: Offene KTW-Dienste auflisten
 
-> Als **KTW-Support** möchte ich alle optionalen KTW- und N-KTW-Dienste sehen, auf denen noch ein oder zwei Plätze frei sind, damit Mitarbeiter*innen gezielt ein bestehendes Team ergänzen können.
+> Als **KTW-Support** möchte ich alle optionalen KTW- und N-KTW-Dienste sehen, auf denen noch ein oder zwei Plätze frei sind, damit Mitarbeiter\*innen gezielt ein bestehendes Team ergänzen können.
 
 **Akzeptanzkriterien**
 
@@ -249,7 +249,7 @@ Begründung: Der KTW-Support plant ganze Wochen (Mittwoch 18:00 bis Mittwoch 18:
 
 ### US-KTW2: Darstellung der KTW-Tabelle
 
-> Als **Empfänger*in** möchte ich auf einen Blick sehen, wann, wo und mit wem ein Platz frei ist, damit ich entscheiden kann, ob ich mich melde.
+> Als **Empfänger\*in** möchte ich auf einen Blick sehen, wann, wo und mit wem ein Platz frei ist, damit ich entscheiden kann, ob ich mich melde.
 
 **Akzeptanzkriterien**
 
@@ -261,7 +261,7 @@ Begründung: Der KTW-Support plant ganze Wochen (Mittwoch 18:00 bis Mittwoch 18:
   | Dienstzeit | Beginn – Ende, z. B. „19:00 - 07:00“ |
   | Fahrzeug | Bei RKK-Fahrzeugen der Fahrzeugname, sonst „KTW“ |
   | Bezirksstelle | Startort des Fahrzeugs |
-  | Lenker*in | Besetzung der ersten Position (Lenker*in) |
+  | Lenker\*in | Besetzung der ersten Position (Lenker\*in) |
   | SAN1 | Besetzung der zweiten Position |
   | SAN2 | Besetzung der dritten Position |
   | Anmerkung | Beschreibung, die an einer Personen-Position des Fahrzeugs hinterlegt ist (leer, wenn keine) |
@@ -276,7 +276,7 @@ Begründung: Der KTW-Support plant ganze Wochen (Mittwoch 18:00 bis Mittwoch 18:
 
 ### US-NFR1: Wochenübersicht der Notfallrettung
 
-> Als **NFR-Support** möchte ich eine Übersicht je Tag und Tag-/Nachtdienst über alle Rettungsmittel, damit Empfänger*innen sofort sehen, wo ein Platz oder ein ganzes Team fehlt.
+> Als **NFR-Support** möchte ich eine Übersicht je Tag und Tag-/Nachtdienst über alle Rettungsmittel, damit Empfänger\*innen sofort sehen, wo ein Platz oder ein ganzes Team fehlt.
 
 **Akzeptanzkriterien**
 
@@ -290,7 +290,7 @@ Begründung: Der KTW-Support plant ganze Wochen (Mittwoch 18:00 bis Mittwoch 18:
 
 ### US-NFR2: Inhalt einer NFR-Zelle
 
-> Als **Empfänger*in** möchte ich in jeder Zelle erkennen, ob der Dienst besetzt ist, welche Funktion fehlt und mit wem ich fahren würde.
+> Als **Empfänger\*in** möchte ich in jeder Zelle erkennen, ob der Dienst besetzt ist, welche Funktion fehlt und mit wem ich fahren würde.
 
 **Akzeptanzkriterien**
 
@@ -331,7 +331,7 @@ Für jede Zelle (Tag/Nacht × Rettungsmittel) gilt die erste zutreffende Zeile:
 
 ### US-AMB2: Ambulanz-Block
 
-> Als **Empfänger*in** möchte ich zu jeder Ambulanz sehen, worum es geht, damit ich entscheiden kann, ob sie mich interessiert.
+> Als **Empfänger\*in** möchte ich zu jeder Ambulanz sehen, worum es geht, damit ich entscheiden kann, ob sie mich interessiert.
 
 **Akzeptanzkriterien**
 
@@ -343,7 +343,7 @@ Für jede Zelle (Tag/Nacht × Rettungsmittel) gilt die erste zutreffende Zeile:
 
 ### US-AMB3: Offene Positionen einer Ambulanz
 
-> Als **Empfänger*in** möchte ich alle offenen Positionen einer Ambulanz mit Zeit, Funktion und Ort sehen und direkt im MPO öffnen können.
+> Als **Empfänger\*in** möchte ich alle offenen Positionen einer Ambulanz mit Zeit, Funktion und Ort sehen und direkt im MPO öffnen können.
 
 **Akzeptanzkriterien**
 
@@ -402,7 +402,7 @@ Die Referenzumsetzung verwendet diese Schnittstellen des Portals. Sie zeigen, wo
 | Zweck | Schnittstelle | Hinweise |
 |---|---|---|
 | Events im Zeitraum (KTW, NFR, AMB) | `GET /rpt/api/event/mpo/assigned?validFrom=…&validTo=…` | Zeitraum als ISO-Zeitpunkte (UTC) von Von 00:00 bis Bis 00:00 Wiener Zeit. Felder: `division.name`, `name`, `eventState.id`, `visibleInMpo`, `days[].stateInMpo.id`, `days[].startTime/endTime/name`, `ambulanceNumber`, `description`, `pictureAvailable`. |
-| Fahrzeuge und Positionen je Event-Tag | `GET /rpt/api/normunitofevent/day/{dayId}` | Fahrzeug: `parentId == null`, `baseNormUnit.type == 'c'`, Typ in `baseNormUnit.name`. Position: `parentId` = Fahrzeug, `baseNormUnit.type == 'p'` (Person); Normeinheiten vom Typ `m` zählen nicht als Position. Weitere Felder: `optional`, `shiftAssignment` (Zuteilung inkl. `employment.employee` und `employmentNumber`), `subcontractor`, `description`, `startLocation.name`, `startTime/endTime`. KTW-Spalten Lenker*in/SAN1/SAN2 = Positionen 1/2/3 des Fahrzeugs. |
+| Fahrzeuge und Positionen je Event-Tag | `GET /rpt/api/normunitofevent/day/{dayId}` | Fahrzeug: `parentId == null`, `baseNormUnit.type == 'c'`, Typ in `baseNormUnit.name`. Position: `parentId` = Fahrzeug, `baseNormUnit.type == 'p'` (Person); Normeinheiten vom Typ `m` zählen nicht als Position. Weitere Felder: `optional`, `shiftAssignment` (Zuteilung inkl. `employment.employee` und `employmentNumber`), `subcontractor`, `description`, `startLocation.name`, `startTime/endTime`. KTW-Spalten Lenker\*in/SAN1/SAN2 = Positionen 1/2/3 des Fahrzeugs. |
 | Dienstwünsche je Event-Tag | `POST /rpt/api/preferredassignment/ed/ids`, Body `[dayId]` | Zuordnung über `normUnitOfEventId`; Status in `preferredAssignmentState.id` (0–2 zählen). |
 | Support-Event suchen | `GET /rpt/api/event?visibleInMpo=true&personnelCapacityOnly=true&validFrom=…&validTo=…` | MPO-Eventliste („Dienste → Events“). Ohne `visibleInMpo=true` filtert das Portal nach RPT-Rechten und das NFR-Support-Event fehlt. Jedes Event enthält hier nur einen Unter-Tag, daher anschließend das ganze Event laden. |
 | Support-Event mit allen Tagen | `GET /rpt/api/event/{id}` | Für den Event-Tag, der Von 18:00 abdeckt. |
@@ -449,7 +449,7 @@ Abgelaufene Sitzung erkennt die Referenzumsetzung an HTTP 401 oder einer Weiterl
 
 | Bereich | Text | Platzhalter |
 |---|---|---|
-| KTW, NFR | „Liebe Grüße,“ / {Dienstführende*r 1} & {Dienstführende*r 2} | „Dienstführende*r 1 & Dienstführende*r 2“ |
+| KTW, NFR | „Liebe Grüße,“ / {Dienstführende\*r 1} & {Dienstführende\*r 2} | „Dienstführende\*r 1 & Dienstführende\*r 2“ |
 | AMB | „Liebe Grüße,“ / {Vorname Nachname} / „im Namen der Ambulanzdienstführung“ | „Vorname Nachname“ |
 
 ### Fußzeile (alle Bereiche)
