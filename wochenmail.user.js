@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MPO Wochenmail
 // @namespace    https://portal.wrk.at/wrkdpl
-// @version      1.4.1
+// @version      1.4.2
 // @description  Wochenmail mit den offenen KTW-, NFR- und Ambulanz-Positionen direkt im MPO oder RPT erstellen und nach Outlook kopieren.
 // @author       Hannes Filip
 // @match        https://portal.wrk.at/mpo
@@ -29,6 +29,10 @@
 
     const TZ = 'Europe/Vienna';
     const PARALLEL = 6;
+    // Abfragen, die länger hängen, werden abgebrochen.
+    const TIMEOUT_MS = 30000;
+    // Ambulanzbilder werden auf diese Breite verkleinert (angezeigt mit 150 px).
+    const PICTURE_WIDTH = 300;
 
     const TYPES = {
         ktw: {
@@ -172,10 +176,14 @@
         try {
             response = await fetch(path, {
                 credentials: 'same-origin',
+                signal: AbortSignal.timeout(TIMEOUT_MS),
                 ...init,
                 headers: { Accept: 'application/json', ...(init.headers || {}) },
             });
-        } catch (_) {
+        } catch (error) {
+            if (error?.name === 'TimeoutError') {
+                throw new Error('Das Portal antwortet nicht (Zeitüberschreitung). Bitte später noch einmal versuchen.');
+            }
             // Ein Redirect auf die Anmeldung eines anderen Hosts scheitert am CORS.
             throw new Error('Keine Antwort vom Portal. Die Sitzung ist vermutlich abgelaufen: Bitte die Seite neu laden und anmelden.');
         }
@@ -222,11 +230,17 @@
     /** Führt die Aufgaben mit höchstens `limit` gleichzeitigen Abfragen aus. */
     async function pool(tasks, limit, onProgress) {
         const results = new Array(tasks.length);
-        let next = 0, done = 0;
+        let next = 0, done = 0, failed = false;
         async function worker() {
-            while (next < tasks.length) {
+            // Nach dem ersten Fehler starten keine weiteren Abfragen.
+            while (!failed && next < tasks.length) {
                 const i = next++;
-                results[i] = await tasks[i]();
+                try {
+                    results[i] = await tasks[i]();
+                } catch (error) {
+                    failed = true;
+                    throw error;
+                }
                 onProgress(++done, tasks.length);
             }
         }
@@ -496,7 +510,25 @@
         const data = (await response.text()).trim().replace(/^"|"$/g, '');
         if (!/^[A-Za-z0-9+/=\s]+$/.test(data)) return null;
         const mime = data.startsWith('/9j') ? 'image/jpeg' : data.startsWith('R0lG') ? 'image/gif' : 'image/png';
-        return `data:${mime};base64,${data.replace(/\s/g, '')}`;
+        return shrinkPicture(`data:${mime};base64,${data.replace(/\s/g, '')}`, mime);
+    }
+
+    /** Verkleinert ein Bild auf PICTURE_WIDTH, damit die Mail nicht unnötig groß wird. */
+    async function shrinkPicture(dataUri, mime) {
+        const image = new Image();
+        image.src = dataUri;
+        try {
+            await image.decode();
+        } catch (_) {
+            return null;
+        }
+        if (image.naturalWidth <= PICTURE_WIDTH) return dataUri;
+        const canvas = document.createElement('canvas');
+        canvas.width = PICTURE_WIDTH;
+        canvas.height = Math.round(image.naturalHeight * PICTURE_WIDTH / image.naturalWidth);
+        canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+        // Fotos als JPEG, alles andere als PNG (Transparenz bleibt erhalten).
+        return mime === 'image/jpeg' ? canvas.toDataURL('image/jpeg', 0.85) : canvas.toDataURL('image/png');
     }
 
     /** Name der angemeldeten Person für die AMB-Unterschrift. */
@@ -740,7 +772,7 @@ ${spacer(65)}
     <button type="submit" class="wm-btn">Erstellen</button>
     <div class="wm-status"></div>
   </form>
-  <iframe class="wm-preview" title="Vorschau"></iframe>
+  <iframe class="wm-preview" title="Vorschau" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
   <div class="wm-foot">
     <span>Doppelklick aufs Datum entfernt eine Zeile.</span>
     <button type="button" class="wm-btn" data-copy disabled>In Zwischenablage kopieren</button>
@@ -798,7 +830,8 @@ ${spacer(65)}
                     : await Promise.all([loadRoster(type, start, end, progress), loadDutyLeaders(type, start).catch(fallback([]))]);
                 if (current !== run) return;
                 const html = renderMail(type, start, type === 'amb' ? data : formatRoster(type, data), leaders);
-                frame.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Wochenmail</title></head><body style="margin:0;background:#ffffff;">${html}</body></html>`;
+                // Vorschau ohne Skripte: sandbox am iframe und eine eigene CSP.
+                frame.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'"><title>Wochenmail</title></head><body style="margin:0;background:#ffffff;">${html}</body></html>`;
                 frame.onload = () => {
                     if (current !== run) return;
                     const doc = frame.contentDocument;
@@ -837,10 +870,25 @@ ${spacer(65)}
                     'text/plain': new Blob([body.innerText], { type: 'text/plain' }),
                 })]);
             } catch (_) {
-                const selection = frame.contentWindow.getSelection();
-                selection.selectAllChildren(body);
-                frame.contentDocument.execCommand('copy');
-                selection.removeAllRanges();
+                // Ersatzweg: In der abgeschotteten Vorschau geht execCommand nicht,
+                // daher eine Kopie der fertigen Knoten im eigenen Dokument markieren.
+                const holder = document.createElement('div');
+                holder.style.cssText = 'position:fixed;left:-10000px;top:0;';
+                holder.append(...[...body.childNodes].map((node) => document.importNode(node, true)));
+                document.body.appendChild(holder);
+                const selection = window.getSelection();
+                selection.selectAllChildren(holder);
+                let copied = false;
+                try {
+                    copied = document.execCommand('copy');
+                } finally {
+                    selection.removeAllRanges();
+                    holder.remove();
+                }
+                if (!copied) {
+                    setStatus('Kopieren fehlgeschlagen. Bitte in der Vorschau alles markieren (Strg+A) und mit Strg+C kopieren.', true);
+                    return;
+                }
             }
             setStatus('Kopiert. Jetzt in Outlook einfügen.');
         });
