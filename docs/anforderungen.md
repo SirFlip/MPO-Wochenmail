@@ -3,7 +3,7 @@
 - **Gegenstand:** Funktion „Wochenmail“ im MPO (`https://portal.wrk.at/mpo`)
 - **Bereiche:** KTW & N-KTW, Notfallrettung (NFR), Ambulanzen (AMB)
 - **Zielgruppe:** Entwicklung des MPO, Product Owner, Fachabteilungen (Freigabe)
-- **Referenz:** Funktionierende Umsetzung als Userscript: `wochenmail.user.js` (Version 1.3.0)
+- **Referenz:** Funktionierende Umsetzung als Userscript: `wochenmail.user.js` (Version 1.4.0). Texte und Kontaktdaten sind dort noch fest hinterlegt (Vorgaben in Anhang B).
 
 ## Inhalt
 
@@ -16,7 +16,7 @@
 7. [Nicht im Umfang](#7-nicht-im-umfang)
 8. [Offene Punkte](#8-offene-punkte)
 9. [Anhang A: Datenquellen im Portal](#anhang-a-datenquellen-im-portal)
-10. [Anhang B: Kontaktdaten und feste Texte](#anhang-b-kontaktdaten-und-feste-texte)
+10. [Anhang B: Vorgaben für Texte und Kontaktdaten](#anhang-b-vorgaben-für-texte-und-kontaktdaten)
 
 ---
 
@@ -133,18 +133,37 @@ Anforderungen sind als User Stories (`US-…`) mit Akzeptanzkriterien (`AK…`) 
 **Akzeptanzkriterien**
 
 - **AK1:** Die Mail besteht von oben nach unten aus:
-  1. Titel, zentriert, 26 px: „Offene Positionen am **KTW & N-KTW**“ / „Offene Positionen in der **Notfallrettung**“ / „Offene Positionen auf **Ambulanzen**“ (hervorgehobener Teil in Rot `#B70E0C`)
-  2. Anrede „Liebe Kolleg\*innen,“
-  3. Einleitungstext des Bereichs (Anhang B)
+  1. Titel des Bereichs, zentriert, 26 px, hervorgehobener Teil in Rot `#B70E0C`
+  2. Anrede
+  3. Einleitung des Bereichs
   4. Inhalt des Bereichs (Abschnitte 4 bis 6)
-  5. Kontakttext mit Mail-Adresse und Telefonnummer des Bereichs als klickbare Links (`mailto:` bzw. `tel:`), danach „Wir wünschen eine schöne Woche!“ (Anhang B)
-  6. „Liebe Grüße,“ und die Unterschrift
-  7. Fußzeile in Hellgrau, 12 px, mit Hinweis auf Status und Berechtigung des Verteilers (Anhang B)
+  5. Kontakttext mit Mail-Adresse und Telefonnummer des Bereichs als klickbare Links (`mailto:` bzw. `tel:`)
+  6. Grußformel und Unterschrift
+  7. Fußzeile in Hellgrau, 12 px, mit Hinweis auf Status und Berechtigung des Verteilers
+
+  Die Texte der Punkte 1–3 und 5–7 sind je Bereich pflegbar (US-A7). Vorgaben stehen in Anhang B.
 - **AK2:** Gestaltung: Schrift Dunant (Ersatz Arial, serifenlos), Fließtext Grau `#737373` in 14 px, Akzentfarbe Rot `#B70E0C`, weißer Hintergrund.
 - **AK3:** Feste Breite der Mail: KTW 700 px, NFR 900 px, AMB 760 px, zentriert.
 - **AK4:** Tabellen: Kopfzeile grau hinterlegt, fett, 16 px; erste Spalte (Datum) fett und linksbündig, übrige Spalten zentriert; Zeilen abwechselnd weiß und grau (`#eeeeee`).
 - **AK5:** Offene Positionen sind in Rot `#bb0000` hervorgehoben.
 - **AK6:** Jeder **MPO-Link** führt direkt auf den betreffenden Event-Tag und die Position im MPO (`/mpo/rpt/mpoevent/{Event}?day={Event-Tag}&shiftlink={Position}&row={Position}`) und öffnet in einem neuen Fenster.
+
+### US-A7: Texte und Kontaktdaten pflegen
+
+> Als **Dienstführung** möchte ich die Texte und Kontaktdaten meines Bereichs selbst anpassen, damit ich für geänderte Formulierungen, Mail-Adressen oder Telefonnummern keine neue Version des MPO brauche.
+
+**Akzeptanzkriterien**
+
+- **AK1:** Je Bereich sind pflegbar:
+  - Texte: Titel, Anrede, Einleitung, Kontakttext, Grußformel, Unterschrift, Fußzeile
+  - Kontaktdaten: Mail-Adresse, Telefonnummer, Berechtigung des Verteilers
+- **AK2:** Texte können Platzhalter nach R-A6 enthalten. Beim Erstellen der Mail werden sie automatisch durch die aktuellen Werte ersetzt.
+- **AK3:** Ohne eigene Pflege gelten die Vorgaben aus Anhang B. Ein gepflegter Text kann auf die Vorgabe zurückgesetzt werden.
+- **AK4:** Beim Speichern werden unbekannte Platzhalter gemeldet und der Text wird nicht gespeichert.
+- **AK5:** Zeilenumbrüche in Texten bleiben in der Mail erhalten.
+- **AK6:** Auszeichnung: Mit `**…**` markierter Text wird hervorgehoben, im Titel in Rot `#B70E0C`, sonst fett. Weitere Formatierung (Schrift, Farben, Größen) ist nicht pflegbar und folgt US-A6.
+- **AK7:** Ist ein Wert leer, den ein Text verwendet (z. B. keine Mail-Adresse hinterlegt), steht an seiner Stelle der Name des Platzhalters in Rot (z. B. „[Mail]“). Die Ansicht weist darauf hin („Kontaktdaten unvollständig, bitte prüfen.“), Kopieren bleibt möglich.
+- **AK8:** Änderungen gelten ab der nächsten erstellten Mail.
 
 ### Gemeinsame Regeln
 
@@ -176,6 +195,22 @@ Eine Position gilt als **besetzt**, wenn mindestens eines zutrifft:
 - (nur AMB) Sie ist an einen Subunternehmer vergeben.
 
 Sonst gilt sie als **offen**. Ein Dienstwunsch wird in der Mail wie eine Zuteilung behandelt (z. B. mit Namen angezeigt).
+
+#### R-A6: Platzhalter in Texten
+
+Platzhalter stehen in geschweiften Klammern und werden beim Erstellen der Mail ersetzt. Groß- und Kleinschreibung zählt.
+
+| Platzhalter | Wert | Ersatz, wenn kein Wert ermittelt werden kann |
+|---|---|---|
+| `{Bereich}` | Name des Bereichs, z. B. „KTW & N-KTW“ | – |
+| `{KW}` | ISO-Kalenderwoche von Von | – |
+| `{Von}` | Von als TT.MM.JJJJ | – |
+| `{Bis}` | Letzter Tag der Mail (Tag vor Bis) als TT.MM.JJJJ | – |
+| `{Mail}` | Mail-Adresse des Bereichs, als `mailto:`-Link | „[Mail]“ in Rot (US-A7 AK7) |
+| `{Telefon}` | Telefonnummer des Bereichs, als `tel:`-Link | „[Telefon]“ in Rot (US-A7 AK7) |
+| `{Berechtigung}` | Berechtigung des Verteilers, z. B. „SAN2“ | „[Berechtigung]“ in Rot (US-A7 AK7) |
+| `{Dienstführung}` | KTW/NFR: ermittelte Dienstführende (US-K2) | „Dienstführende\*r 1 & Dienstführende\*r 2“ |
+| `{Name}` | Angemeldete Person als „Vorname Nachname“ | „Vorname Nachname“ |
 
 ---
 
@@ -217,8 +252,8 @@ Begründung: Werktags tagsüber ist der Dienst hauptberuflich abgedeckt. An Feie
 - **AK2:** Das Support-Event wird über seine Dienstplanklasse gefunden: `RD-KTW-SUPPORT` für KTW, `RD-NFR-SUPPORT` für NFR. Gesucht wird unter den im MPO sichtbaren Events dasjenige, das den Bezugszeitpunkt abdeckt. Die Suche darf nicht von den RPT-Rechten der angemeldeten Person abhängen.
 - **AK3:** Verwendet wird der Event-Tag des Support-Events, der den Bezugszeitpunkt abdeckt (Beginn ≤ Bezug < Ende).
 - **AK4:** Die Dienstführenden werden nach R-K2 ermittelt.
-- **AK5:** Unterschrift sind die ersten beiden ermittelten Personen als „Vorname Nachname & Vorname Nachname“.
-- **AK6:** Gibt es kein Support-Event, keinen passenden Event-Tag oder niemanden, steht in der Unterschrift der Platzhalter „Dienstführende\*r 1 & Dienstführende\*r 2“ und es erscheint der Hinweis aus US-A3 AK6.
+- **AK5:** Der Platzhalter `{Dienstführung}` (R-A6) enthält die ersten beiden ermittelten Personen als „Vorname Nachname & Vorname Nachname“.
+- **AK6:** Gibt es kein Support-Event, keinen passenden Event-Tag oder niemanden, wird `{Dienstführung}` durch „Dienstführende\*r 1 & Dienstführende\*r 2“ ersetzt und es erscheint der Hinweis aus US-A3 AK6.
 - **AK7:** Ein Fehler beim Ermitteln der Unterschrift verhindert die Mail nicht (außer bei abgelaufener Sitzung).
 
 ### R-K2: Auswahl der Dienstführenden
@@ -368,9 +403,9 @@ Für jede Zelle (Tag/Nacht × Rettungsmittel) gilt die erste zutreffende Zeile:
 
 **Akzeptanzkriterien**
 
-- **AK1:** Unterschrift: Name der angemeldeten Person („Vorname Nachname“), darunter „im Namen der Ambulanzdienstführung“. Ein Support-Event wird nicht verwendet.
-- **AK2:** Ist kein Name verfügbar, steht „Vorname Nachname“ als Platzhalter und es erscheint der Hinweis aus US-A3 AK6.
-- **AK3:** Einleitung: fester AMB-Text **ohne** Einladungssatz (Anhang B).
+- **AK1:** Unterschrift (Vorgabe in Anhang B): Name der angemeldeten Person (`{Name}`), darunter „im Namen der Ambulanzdienstführung“. Ein Support-Event wird nicht verwendet.
+- **AK2:** Ist kein Name verfügbar, wird `{Name}` durch „Vorname Nachname“ ersetzt und es erscheint der Hinweis aus US-A3 AK6.
+- **AK3:** Einleitung: AMB-Vorgabe **ohne** Einladungssatz (Anhang B).
 - **AK4:** Kontakt nach Anhang B. Fußzeile mit Berechtigung **SAN2**.
 
 ---
@@ -379,7 +414,7 @@ Für jede Zelle (Tag/Nacht × Rettungsmittel) gilt die erste zutreffende Zeile:
 
 - **Automatischer Versand:** Die Mail wird nicht aus dem MPO verschickt. Sie wird von der Dienstführung in Outlook eingefügt und von dort an den Verteiler gesendet.
 - **Empfängerverwaltung:** Der Verteiler (Status AKTIV/ZBV mit Berechtigung SAN1 bzw. SAN2 oder höher) wird außerhalb des MPO gepflegt.
-- **Bearbeiten von Texten in der Vorschau:** Außer dem Entfernen von Zeilen (US-A4) wird in Outlook nachbearbeitet.
+- **Bearbeiten von Texten in der Vorschau:** Außer dem Entfernen von Zeilen (US-A4) wird in Outlook nachbearbeitet. Dauerhafte Textänderungen laufen über die Pflege (US-A7).
 
 ---
 
@@ -391,7 +426,7 @@ Für die Umsetzung im MPO zu klären:
 2. **Statuswerte:** Die Bedeutung der verwendeten IDs (Event-Status 0–4, MPO-Status 0–3, Wunsch-Status 0–2) ist in diesem Dokument nur als Zahl angegeben. Die Entwicklung sollte die Klartext-Bezeichnungen ergänzen.
 3. **Event-Tage KTW/NFR:** Die Referenzumsetzung prüft den MPO-Status 0–3 und den Zeitraum nur auf Event-Ebene (mindestens ein Tag), nicht für jeden einzelnen Event-Tag. Bei Ambulanzen wird jeder Tag einzeln geprüft (US-AMB1 AK2). Festlegen, ob KTW/NFR ebenfalls je Tag filtern sollen.
 4. **Feiertage und Sommerferien:** Heute fest berechnet (R-A3, R-A4). Falls das MPO einen Feiertagskalender führt, diesen verwenden.
-5. **Feste Texte und Kontaktdaten:** Heute fest hinterlegt (Anhang B). Klären, ob sie im MPO pflegbar sein sollen.
+5. **Pflege von Texten und Kontaktdaten (US-A7):** Wer darf sie ändern? Vorschlag: die Leitung des jeweiligen Bereichs. Gemeinsam mit Punkt 1 im Rechtekonzept festlegen.
 6. **Bilder in Outlook:** Eingebettete Bilder (US-AMB2 AK4) werden von Outlook beim Einfügen nicht immer übernommen. Bei einer Umsetzung im MPO prüfen, ob ein anderer Weg (z. B. Download als `.eml`/`.oft`) zuverlässiger ist.
 
 ---
@@ -415,15 +450,29 @@ Abgelaufene Sitzung erkennt die Referenzumsetzung an HTTP 401 oder einer Weiterl
 
 ---
 
-## Anhang B: Kontaktdaten und feste Texte
+## Anhang B: Vorgaben für Texte und Kontaktdaten
+
+Vorgaben für US-A7. Platzhalter nach R-A6, `**…**` markiert Hervorhebungen (US-A7 AK6).
 
 ### Kontaktdaten je Bereich
 
-| Bereich | Mail | Telefon | Berechtigung in der Fußzeile |
+| Bereich | Mail | Telefon | Berechtigung |
 |---|---|---|---|
 | KTW & N-KTW | KTW.Support@w.roteskreuz.at | 01/79580-1776 | SAN2 |
 | Notfallrettung | nfrsupport@w.roteskreuz.at | 01/79580-1775 | SAN1 |
 | Ambulanzen | amb-df@w.roteskreuz.at | 01/79580-1774 | SAN2 |
+
+### Titel
+
+| Bereich | Vorgabe |
+|---|---|
+| KTW & N-KTW | `Offene Positionen am **KTW & N-KTW**` |
+| Notfallrettung | `Offene Positionen in der **Notfallrettung**` |
+| Ambulanzen | `Offene Positionen auf **Ambulanzen**` |
+
+### Anrede (alle Bereiche)
+
+> Liebe Kolleg\*innen,
 
 ### Einleitung
 
@@ -432,7 +481,7 @@ Abgelaufene Sitzung erkennt die Referenzumsetzung an HTTP 401 oder einer Weiterl
 > In gewohnter Weise möchten wir dich über die offenen Positionen am KTW und N-KTW in den kommenden Tagen informieren.
 > Es würde uns freuen, wenn du den einen oder anderen Dienst besetzen kannst. Wenn du bereits ein ganzes Team für einen Dienst hast, kannst du uns dieses genauso bekannt geben wie einen einzelnen Dienstwunsch!
 
-**NFR** (`{KW}` = ISO-Kalenderwoche von Von):
+**NFR:**
 
 > Gleich zum Wochenanfang möchten wir dich wie gewohnt über die offenen Positionen der Notfallrettung in der KW {KW} informieren.
 > Es würde uns freuen, wenn du den einen oder anderen Dienst besetzen kannst. Wenn du bereits ein ganzes Team für einen Dienst hast, kannst du uns dieses genauso bekannt geben wie einen einzelnen Dienstwunsch!
@@ -446,16 +495,22 @@ Abgelaufene Sitzung erkennt die Referenzumsetzung an HTTP 401 oder einer Weiterl
 > Für Änderungen, Splittings, Dienstzeitenanpassungen, uvm. zu bestehenden Diensten kannst du uns natürlich jederzeit via Email unter {Mail} oder per Telefon unter {Telefon} kontaktieren.
 > Wir wünschen eine schöne Woche!
 
+### Grußformel (alle Bereiche)
+
+> Liebe Grüße,
+
 ### Unterschrift
 
-| Bereich | Text | Platzhalter |
-|---|---|---|
-| KTW, NFR | „Liebe Grüße,“ / {Dienstführende\*r 1} & {Dienstführende\*r 2} | „Dienstführende\*r 1 & Dienstführende\*r 2“ |
-| AMB | „Liebe Grüße,“ / {Vorname Nachname} / „im Namen der Ambulanzdienstführung“ | „Vorname Nachname“ |
+| Bereich | Vorgabe |
+|---|---|
+| KTW, NFR | `{Dienstführung}` |
+| AMB | `{Name}`, in der zweiten Zeile „im Namen der Ambulanzdienstführung“ |
 
 ### Fußzeile (alle Bereiche)
 
-> Du erhältst diese E-Mail weil du Mitglied im Roten Kreuz Landesverband Wien mit Status **AKTIV** oder **ZBV** mit der Berechtigung **{Berechtigung}** oder höher bist.
+```
+Du erhältst diese E-Mail weil du Mitglied im Roten Kreuz Landesverband Wien mit Status **AKTIV** oder **ZBV** mit der Berechtigung **{Berechtigung}** oder höher bist.
+```
 
 ### Meldungen in der Ansicht
 
