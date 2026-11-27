@@ -69,6 +69,7 @@ Anforderungen sind als User Stories (`US-…`) mit Akzeptanzkriterien (`AK…`) 
 **Akzeptanzkriterien**
 
 - **AK1:** Im Menü „Dienste“ gibt es den Eintrag **„Wochenmail“** (Symbol: Briefumschlag), direkt nach „Kalenderabo“.
+- **AK1a:** Im RPT steht derselbe Eintrag als letzter Punkt im Menü „Planung“ (nach „Nachverfolgung“). Die Wochenmail ist dort gleich wie im MPO.
 - **AK2:** Ein Klick öffnet die Wochenmail-Ansicht (Dialog oder eigene Seite) innerhalb des MPO, ohne erneute Anmeldung.
 - **AK3:** Die Ansicht kann über „Schließen“, die Taste `Esc` oder einen Klick außerhalb geschlossen werden.
 - **AK4:** Wird die Ansicht in derselben Sitzung erneut geöffnet, bleiben Auswahl und zuletzt erstellte Vorschau erhalten.

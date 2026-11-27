@@ -1,6 +1,6 @@
 # MPO Wochenmail
 
-Tampermonkey-Userscript für das MPO-Portal des WRK (`https://portal.wrk.at/mpo/`). Es erstellt die Wochenmail mit den offenen Positionen für **KTW & N-KTW**, die **Notfallrettung (NFR)** oder **Ambulanzen (AMB)** direkt im Browser. Die fertige Mail wird in die Zwischenablage kopiert und von Hand in Outlook eingefügt. Das Script verschickt selbst nichts.
+Tampermonkey-Userscript für das MPO-Portal des WRK (`https://portal.wrk.at/mpo/`), auch im RPT (`https://portal.wrk.at/rpt/`) nutzbar. Es erstellt die Wochenmail mit den offenen Positionen für **KTW & N-KTW**, die **Notfallrettung (NFR)** oder **Ambulanzen (AMB)** direkt im Browser. Die fertige Mail wird in die Zwischenablage kopiert und von Hand in Outlook eingefügt. Das Script verschickt selbst nichts.
 
 Das Script nutzt deine angemeldete MPO-Sitzung. Es braucht keine eigenen Zugangsdaten und sieht nur, was du im MPO auch siehst.
 
@@ -36,7 +36,7 @@ Tampermonkey öffnet eine Installationsseite. Dort auf **Installieren** klicken.
 
 ### 3. Prüfen
 
-MPO öffnen bzw. neu laden. Im Menü unter **Dienste** steht nach „Kalenderabo“ der neue Eintrag **Wochenmail**.
+MPO öffnen bzw. neu laden. Im Menü unter **Dienste** steht nach „Kalenderabo“ der neue Eintrag **Wochenmail**. Im RPT steht er als letzter Punkt unter **Planung**.
 
 ### Auf dem Handy (Android und iOS)
 
@@ -62,7 +62,7 @@ Tampermonkey sucht selbst nach neuen Versionen (standardmäßig täglich) und in
 
 ## Bedienung
 
-1. Im MPO **Dienste → Wochenmail** öffnen.
+1. Im MPO **Dienste → Wochenmail** öffnen (im RPT **Planung → Wochenmail**).
 2. Auswählen:
    - **Bereich:** KTW & N-KTW, Notfallrettung oder Ambulanzen.
    - **Von:** erster Tag der Mail, standardmäßig morgen.

@@ -1,22 +1,27 @@
 // ==UserScript==
 // @name         MPO Wochenmail
 // @namespace    https://portal.wrk.at/wrkdpl
-// @version      1.3.0
-// @description  Wochenmail mit den offenen KTW-, NFR- und Ambulanz-Positionen direkt im MPO erstellen und nach Outlook kopieren.
+// @version      1.4.0
+// @description  Wochenmail mit den offenen KTW-, NFR- und Ambulanz-Positionen direkt im MPO oder RPT erstellen und nach Outlook kopieren.
+// @author       Hannes Filip
 // @match        https://portal.wrk.at/mpo
 // @match        https://portal.wrk.at/mpo/*
+// @match        https://portal.wrk.at/rpt
+// @match        https://portal.wrk.at/rpt/*
 // @license      MIT
 // @homepageURL  https://github.com/SirFlip/mpo-wochenmail
+// @supportURL   https://github.com/SirFlip/mpo-wochenmail/issues
 // @updateURL    https://raw.githubusercontent.com/SirFlip/mpo-wochenmail/main/wochenmail.user.js
 // @downloadURL  https://raw.githubusercontent.com/SirFlip/mpo-wochenmail/main/wochenmail.user.js
 // @grant        none
 // @run-at       document-idle
+// @noframes
 // ==/UserScript==
 
 // Portierung des Wochenmail-Generators aus wrkdpl von Daniel Steiner:
 // https://github.com/danielsteiner/wrkdpl
 //
-// Läuft in der angemeldeten MPO-Seite: Alle Abfragen gehen mit der Browser-Sitzung
+// Läuft in der angemeldeten MPO- bzw. RPT-Seite: Alle Abfragen gehen mit der Browser-Sitzung
 // an dieselben Portal-Schnittstellen wie die Laravel-App (WochenmailController).
 
 (function () {
@@ -823,12 +828,20 @@ ${spacer(65)}
 
     // ---------------------------------------------------------------- Menü
 
-    const MENU_ANCHORS = ['/mpo/rpt/mpocalendarsubscription', '/mpo/rpt/mpoopenpositions'];
+    // MPO: im Menü „Dienste“ nach „Kalenderabo“.
+    const MPO_ANCHORS = ['/mpo/rpt/mpocalendarsubscription', '/mpo/rpt/mpoopenpositions'];
+
+    /** Menüpunkt, nach dem der Eintrag eingefügt wird. */
+    function menuPlace() {
+        const anchor = MPO_ANCHORS.map((href) => document.querySelector(`a[href="${href}"]`)).find(Boolean);
+        if (anchor) return anchor.closest('li');
+        // RPT: als letzter Punkt im Menü „Planung“.
+        return document.querySelector('a[href^="/rpt/planning/"]')?.closest('ul')?.lastElementChild ?? null;
+    }
 
     function addMenuEntry() {
         if (document.querySelector('[data-wm-menu]')) return;
-        const anchor = MENU_ANCHORS.map((href) => document.querySelector(`a[href="${href}"]`)).find(Boolean);
-        const item = anchor?.closest('li');
+        const item = menuPlace();
         if (!item) return;
         const entry = item.cloneNode(true);
         entry.setAttribute('data-wm-menu', '');
@@ -836,7 +849,7 @@ ${spacer(65)}
         link.setAttribute('href', '#wochenmail');
         link.removeAttribute('routerlinkactive');
         link.classList.remove('active-route');
-        link.querySelector('i')?.setAttribute('class', 'layout-menuitem-icon pi pi-envelope');
+        link.querySelector('i')?.setAttribute('class', 'layout-menuitem-icon pi pi-fw pi-envelope');
         const text = link.querySelector('.layout-menuitem-text');
         if (text) text.textContent = 'Wochenmail';
         link.addEventListener('click', (e) => {
@@ -847,7 +860,7 @@ ${spacer(65)}
         item.after(entry);
     }
 
-    // Das MPO ist eine Angular-App und baut das Menü bei Bedarf neu auf.
+    // MPO und RPT sind Angular-Apps und bauen das Menü bei Bedarf neu auf.
     new MutationObserver(addMenuEntry).observe(document.body, { childList: true, subtree: true });
     addMenuEntry();
 })();

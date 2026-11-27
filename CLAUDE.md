@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`wochenmail.user.js` is a single-file Tampermonkey userscript for the WRK MPO portal (`https://portal.wrk.at/mpo/*`). It builds the weekly mail ("Wochenmail") listing open positions for **KTW & N-KTW**, **Notfallrettung (NFR)** and **Ambulanzen (AMB)**. The result is shown in a dialog and copied by hand into Outlook. Nothing is sent automatically; do not add sending.
+`wochenmail.user.js` is a single-file Tampermonkey userscript for the WRK MPO portal (`https://portal.wrk.at/mpo/*`). It also runs in the RPT (`https://portal.wrk.at/rpt/*`). It builds the weekly mail ("Wochenmail") listing open positions for **KTW & N-KTW**, **Notfallrettung (NFR)** and **Ambulanzen (AMB)**. The result is shown in a dialog and copied by hand into Outlook. Nothing is sent automatically; do not add sending.
 
 UI text, commit messages and domain terms are German. Never commit secrets (cookies, tokens).
 
@@ -13,7 +13,7 @@ It is a port of `WochenmailController` from the Laravel app `wrkdpl` (https://gi
 ## How it works
 
 - Runs inside the logged-in MPO page (`@grant none`) and calls the portal APIs with `fetch` and the browser session. There is no login, token or cookie handling of its own. 401 or a redirect into Keycloak is reported as an expired session.
-- Adds a "Wochenmail" entry after "Kalenderabo" in the "Dienste" menu, by cloning an existing menu `<li>`. A MutationObserver re-adds it, because the MPO is an Angular app that re-renders the menu.
+- Adds a "Wochenmail" entry by cloning an existing menu `<li>`: in the MPO after "Kalenderabo" in the "Dienste" menu, in the RPT as the last item of the "Planung" menu. A MutationObserver re-adds it, because MPO and RPT are Angular apps that re-render the menu.
 - Dialog: Bereich (ktw/nfr/amb), Von (default tomorrow), Bis (default Von + 8 days, exclusive, moves along with Von). The preview is an `iframe` (`srcdoc`). Double-clicking the date cell removes a row. The copy button writes `text/html` to the clipboard, so all mail styles are inline on purpose: Outlook drops `<style>` blocks.
 - All times are handled in `Europe/Vienna` (helpers `vienna()` and `viennaDate()`), independent of the browser's time zone.
 
