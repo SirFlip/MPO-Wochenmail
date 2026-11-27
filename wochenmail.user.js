@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MPO Wochenmail
 // @namespace    https://portal.wrk.at/wrkdpl
-// @version      1.4.0
+// @version      1.4.1
 // @description  Wochenmail mit den offenen KTW-, NFR- und Ambulanz-Positionen direkt im MPO oder RPT erstellen und nach Outlook kopieren.
 // @author       Hannes Filip
 // @match        https://portal.wrk.at/mpo
@@ -129,7 +129,7 @@
         const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4;
         const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
         const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4;
-        const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h - 22 * l) / 451);
+        const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
         const month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
         return `${y}-${pad(month)}-${pad(day)}`;
     }
@@ -161,18 +161,40 @@
 
     // ---------------------------------------------------------------- Portal
 
-    class SessionExpired extends Error {}
+    class SessionExpired extends Error {
+        constructor() {
+            super('Die Portal-Sitzung ist abgelaufen. Bitte die Seite neu laden und anmelden.');
+        }
+    }
 
     async function api(path, init = {}) {
-        const response = await fetch(path, {
-            credentials: 'same-origin',
-            ...init,
-            headers: { Accept: 'application/json', ...(init.headers || {}) },
-        });
+        let response;
+        try {
+            response = await fetch(path, {
+                credentials: 'same-origin',
+                ...init,
+                headers: { Accept: 'application/json', ...(init.headers || {}) },
+            });
+        } catch (_) {
+            // Ein Redirect auf die Anmeldung eines anderen Hosts scheitert am CORS.
+            throw new Error('Keine Antwort vom Portal. Die Sitzung ist vermutlich abgelaufen: Bitte die Seite neu laden und anmelden.');
+        }
         if (response.status === 401 || (response.redirected && /oauth2|openid-connect/.test(response.url))) {
-            throw new SessionExpired('Die Portal-Sitzung ist abgelaufen. Bitte die Seite neu laden und anmelden.');
+            throw new SessionExpired();
         }
         return response;
+    }
+
+    /** JSON lesen. Eine HTML-Antwort (Anmeldeseite) gilt als abgelaufene Sitzung. */
+    async function readJson(response, what) {
+        const text = await response.text();
+        if (!text.trim()) return null;
+        try {
+            return JSON.parse(text);
+        } catch (_) {
+            if (/^\s*</.test(text)) throw new SessionExpired();
+            throw new Error(`${what}: ungültige Antwort`);
+        }
     }
 
     async function getJson(path) {
@@ -180,7 +202,7 @@
         if (!response.ok) {
             throw new Error(`${path}: HTTP ${response.status}`);
         }
-        return response.json();
+        return readJson(response, path);
     }
 
     async function preferredAssignments(dayId) {
@@ -193,7 +215,7 @@
         if (!response.ok) {
             throw new Error(`Dienstwünsche: HTTP ${response.status}`);
         }
-        const list = await response.json().catch(() => []);
+        const list = await readJson(response, 'Dienstwünsche');
         return (list || []).filter((p) => ALLOWED_PREFERRED_ASSIGNMENT_STATES.includes(p.preferredAssignmentState?.id));
     }
 
